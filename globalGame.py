@@ -39,13 +39,7 @@ class Game():
             othercolor = b._BLACK if nextplayercolor == b._WHITE else b._WHITE
             
             currentTime = time.time()
-            sys.stdout = stringio
             move = players[nextplayer].getPlayerMove()
-            sys.stdout = sysstdout
-            playeroutput = "\r" + stringio.getvalue()
-            stringio.truncate(0)
-            if logging: print(("[Player "+str(nextplayer) + "] ").join(playeroutput.splitlines(True)))
-            outputs[nextplayer] += playeroutput
             totalTime[nextplayer] += time.time() - currentTime
             if logging: print("Player ", nextplayercolor, players[nextplayer].getPlayerName(), "plays" + str(move))
             (x,y) = move 
