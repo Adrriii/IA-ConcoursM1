@@ -2,7 +2,6 @@
 
 import time
 from Reversi import Board
-from random import randint
 from playerInterface import *
 
 # used to easily create a new player

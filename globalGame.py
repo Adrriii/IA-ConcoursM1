@@ -27,9 +27,9 @@ class Game():
         sysstdout= sys.stdout
         stringio = StringIO()
 
-        if logging: print(b.legal_moves())
+        if verbose: print(b.legal_moves())
         while not b.is_game_over():
-            if logging: 
+            if verbose: 
                 print("Referee Board:")
                 print(b)
                 print("Before move", nbmoves)
@@ -41,10 +41,10 @@ class Game():
             currentTime = time.time()
             move = players[nextplayer].getPlayerMove()
             totalTime[nextplayer] += time.time() - currentTime
-            if logging: print("Player ", nextplayercolor, players[nextplayer].getPlayerName(), "plays" + str(move))
+            if verbose: print("Player ", nextplayercolor, players[nextplayer].getPlayerName(), "plays" + str(move))
             (x,y) = move 
             if not b.is_valid_move(nextplayercolor,x,y):
-                if logging: 
+                if verbose or logging: 
                     print(otherplayer, nextplayer, nextplayercolor)
                     print("Problem: illegal move")
                 break
@@ -54,16 +54,19 @@ class Game():
             nextplayer = otherplayer
             nextplayercolor = othercolor
 
-            if logging: print(b)
+            if verbose: print(b)
 
-        if logging: print("The game is over")
-        if logging: print(b)
+        if verbose: print("The game is over")
+        if verbose: print(b)
         (nbwhites, nbblacks) = b.get_nb_pieces()
-        if logging: print("Time:", totalTime)
+        if verbose: print("Time:", totalTime)
         if verbose: print("Winner: ", end="")
         if nbwhites > nbblacks:
+            if verbose or logging: print(player1.getPlayerName()+" wins in "+ str(totalTime[0]) + " seconds of reflexion (against " + str(totalTime[1]) + ")")
             return 3
         elif nbblacks > nbwhites:
+            if verbose or logging: print(player2.getPlayerName()+" wins in "+ str(totalTime[1]) + " seconds of reflexion (against " + str(totalTime[0]) + ")")
             return -3
         else:
+            if verbose or logging: print("Tie in "+ str(totalTime[1]) + " and " + str(totalTime[0]) + " seconds (Respectively "+player1.getPlayerName()+" and "+player2.getPlayerName()+")")
             return 0

@@ -9,8 +9,8 @@ def compare(player1,player2,rounds):
     score = 0
 
     for r in range(0,rounds):
-        score += globalGame.Game().play(player1,player2)
+        score += globalGame.Game().play(player1(),player2(),False,True)
 
-    print(player1.getPlayerName() + " vs " + player2.getPlayerName() + " -> " +  str(score / rounds))
+    print(player1().getPlayerName() + " vs " + player2().getPlayerName() + " -> " +  str(score / rounds))
 
-compare(myPlayer.myPlayer(),randomPlayer(),100)
+compare(myPlayer.myPlayer,randomPlayer,10)
