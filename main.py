@@ -11,6 +11,6 @@ def compare(player1,player2,rounds):
     for r in range(0,rounds):
         score += globalGame.Game().play(player1,player2)
 
-    print(player1.getPlayerName() + " vs Random Player -> " +  str(score / rounds))
+    print(player1.getPlayerName() + " vs " + player2.getPlayerName() + " -> " +  str(score / rounds))
 
 compare(myPlayer.myPlayer(),randomPlayer(),100)
