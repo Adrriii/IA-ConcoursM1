@@ -154,7 +154,9 @@ class Display():
                 x = (pos[0] - self._BOARD_OFFSET) // self.caseSize
                 y = (pos[1] - self._BOARD_OFFSET) // self.caseSize
 
-                print(x, y)
-                print(self.isClickOnPossibleMove(self.board._BLACK, x, y))
+                if self.isClickOnPossibleMove(self.board._BLACK, x, y):
+                    return (x, y)
+
+        return ()
 
 
