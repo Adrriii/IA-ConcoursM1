@@ -83,6 +83,28 @@ class Display():
             0 # fill the circle
         )
 
+    def drawGhostPiece(self, x, y, size):
+        pygame.draw.circle(
+            self.window, 
+            self._COLORS[0],
+            (x + size//2, y + size//2),
+            size//2,
+            1
+        )
+
+    def drawPossibleMoves(self, playerColor):
+        boardSize = self.board.get_board_size()
+        caseSize = self._BOARD_WIDTH // boardSize
+
+        legalMoves = self.board.legal_moves()
+        for move in legalMoves:
+            if move[0] == playerColor:
+                self.drawGhostPiece(
+                    move[1] * caseSize + self._BOARD_OFFSET, 
+                    move[2] * caseSize + self._BOARD_OFFSET,
+                    caseSize
+                )
+
 
     def drawBoard(self):
         boardSize = self.board.get_board_size()
@@ -111,6 +133,8 @@ class Display():
                     caseSize,
                     boardArray[x][y]
                 )
+        
+        self.drawPossibleMoves(self.board._BLACK)
 
     def refreshWindow(self):
         pygame.display.flip()
