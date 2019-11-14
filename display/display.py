@@ -10,6 +10,8 @@ class Display():
     _WIDTH = 640
     _HEIGHT = 720
 
+    _PIECE_SIZE_RATIO = 0.9
+
     _BOARD_OFFSET = 10
     _BOARD_WIDTH = _WIDTH - 2 * _BOARD_OFFSET
 
@@ -74,22 +76,13 @@ class Display():
             )
 
 
-    def drawPiece(self, x, y, size, type):
+    def drawPiece(self, x, y, size, type, ghost = False):
         pygame.draw.circle(
             self.window, 
-            self._COLORS[3 if type == self.board._WHITE else 1],
+            self._COLORS[0 if ghost else (3 if type == self.board._WHITE else 1)],
             (x + size//2, y + size//2),
-            size//2,
-            0 # fill the circle
-        )
-
-    def drawGhostPiece(self, x, y, size):
-        pygame.draw.circle(
-            self.window, 
-            self._COLORS[0],
-            (x + size//2, y + size//2),
-            size//2,
-            1
+            int(size//2*self._PIECE_SIZE_RATIO),
+            1 if ghost else 0
         )
 
     def drawPossibleMoves(self, playerColor):
@@ -99,10 +92,12 @@ class Display():
         legalMoves = self.board.legal_moves()
         for move in legalMoves:
             if move[0] == playerColor:
-                self.drawGhostPiece(
+                self.drawPiece(
                     move[1] * caseSize + self._BOARD_OFFSET, 
                     move[2] * caseSize + self._BOARD_OFFSET,
-                    caseSize
+                    caseSize,
+                    0,
+                    True
                 )
 
 
