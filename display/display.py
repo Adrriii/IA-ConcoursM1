@@ -48,6 +48,7 @@ class Display():
     
     def setBoard(self, board):
         self.board = board
+        self.caseSize = self._BOARD_WIDTH // self.board.get_board_size()
 
 
     def drawBackground(self):
@@ -56,22 +57,21 @@ class Display():
 
     def drawBoardGrid(self):
         boardSize = self.board.get_board_size()
-        caseSize = self._BOARD_WIDTH // boardSize
 
         for i in range(1, boardSize):
             pygame.draw.line(
                 self.window,
                 self._COLORS[0],
-                (self._BOARD_OFFSET, self._BOARD_OFFSET + i * caseSize),
-                (self._BOARD_WIDTH + self._BOARD_OFFSET , self._BOARD_OFFSET + i * caseSize),
+                (self._BOARD_OFFSET, self._BOARD_OFFSET + i * self.caseSize),
+                (self._BOARD_WIDTH + self._BOARD_OFFSET , self._BOARD_OFFSET + i * self.caseSize),
                 1
             )
 
             pygame.draw.line(
                 self.window,
                 self._COLORS[0],
-                (self._BOARD_OFFSET + i * caseSize, self._BOARD_OFFSET),
-                (self._BOARD_OFFSET + i * caseSize, self._BOARD_WIDTH + self._BOARD_OFFSET),
+                (self._BOARD_OFFSET + i * self.caseSize, self._BOARD_OFFSET),
+                (self._BOARD_OFFSET + i * self.caseSize, self._BOARD_WIDTH + self._BOARD_OFFSET),
                 1
             )
 
@@ -86,16 +86,13 @@ class Display():
         )
 
     def drawPossibleMoves(self, playerColor):
-        boardSize = self.board.get_board_size()
-        caseSize = self._BOARD_WIDTH // boardSize
-
         legalMoves = self.board.legal_moves()
         for move in legalMoves:
             if move[0] == playerColor:
                 self.drawPiece(
-                    move[1] * caseSize + self._BOARD_OFFSET, 
-                    move[2] * caseSize + self._BOARD_OFFSET,
-                    caseSize,
+                    move[1] * self.caseSize + self._BOARD_OFFSET, 
+                    move[2] * self.caseSize + self._BOARD_OFFSET,
+                    self.caseSize,
                     0,
                     True
                 )
@@ -104,7 +101,6 @@ class Display():
     def drawBoard(self):
         boardSize = self.board.get_board_size()
         boardArray = self.board.get_board()
-        caseSize = self._BOARD_WIDTH // boardSize
 
         pygame.draw.rect(
             self.window,
@@ -123,9 +119,9 @@ class Display():
                     continue
 
                 self.drawPiece(
-                    x * caseSize + self._BOARD_OFFSET, 
-                    y * caseSize + self._BOARD_OFFSET,
-                    caseSize,
+                    x * self.caseSize + self._BOARD_OFFSET, 
+                    y * self.caseSize + self._BOARD_OFFSET,
+                    self.caseSize,
                     boardArray[x][y]
                 )
         
@@ -133,3 +129,32 @@ class Display():
 
     def refreshWindow(self):
         pygame.display.flip()
+
+    
+    def isClickOnPossibleMove(self, playerColor, x, y):
+        legalMoves = self.board.legal_moves()
+        
+        for move in legalMoves:
+            if move[0] == playerColor:
+                if move[1] == x and move[2] == y:
+                    return True
+        
+        return False
+
+
+    def inputHandler(self):
+        ev = pygame.event.get()
+        
+        for event in ev:
+
+            # handle MOUSEBUTTONUP
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+
+                x = (pos[0] - self._BOARD_OFFSET) // self.caseSize
+                y = (pos[1] - self._BOARD_OFFSET) // self.caseSize
+
+                print(x, y)
+                print(self.isClickOnPossibleMove(self.board._BLACK, x, y))
+
+

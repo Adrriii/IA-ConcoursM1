@@ -11,4 +11,5 @@ display.drawBackground()
 display.drawBoard()
 display.refreshWindow()
 
-time.sleep(4)
+while(True):
+    display.inputHandler()
