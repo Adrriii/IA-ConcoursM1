@@ -135,7 +135,7 @@ class Display():
         pygame.display.flip()
 
     
-    def isClickOnPossibleMove(self, playerColor, x, y):
+    def isLegalMove(self, playerColor, x, y):
         legalMoves = self.board.legal_moves()
         
         for move in legalMoves:
@@ -158,9 +158,13 @@ class Display():
                 x = (pos[0] - self._BOARD_OFFSET) // self.caseSize
                 y = (pos[1] - self._BOARD_OFFSET) // self.caseSize
 
-                if self.isClickOnPossibleMove(self.board._BLACK, x, y):
+                if self.isLegalMove(self.board._BLACK, x, y):
                     return (x, y)
 
         return ()
+
+    def performMove(self,player,x,y):
+        if(self.isLegalMove(player,x,y)):
+            self.board.push((player,x,y))
 
 

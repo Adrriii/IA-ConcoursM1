@@ -1,4 +1,4 @@
 from players import *
 
-class myPlayer(miniMax):
+class myPlayer(human):
     pass
