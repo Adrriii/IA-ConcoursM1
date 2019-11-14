@@ -14,11 +14,12 @@ import copy
 class OneDirection(Thread):
     """ Simple thread for on specific move """
 
-    def __init__(self, board, initialMove, queue):
+    def __init__(self, board, initialMove, queue, color):
         Thread.__init__(self)
         self.board = board
         self.initialMove = initialMove
         self.queue = queue
+        self.color = color
 
     def run(self):
 
@@ -27,10 +28,10 @@ class OneDirection(Thread):
             return (-1,-1)
         
         self.board.push(self.initialMove)
-        value = minValue(self.board,heuristic1,-1000,1000,self._mycolor,0,3)
+        value = minValue(self.board,heuristic1,-1000,1000,self.color,0,4)
         self.board.pop()
 
-        self.queue.put(self.initialMove, value)
+        self.queue.put((self.initialMove, value))
 
 
 
@@ -55,7 +56,7 @@ class miniMax_thread(GraphicalPlayer):
         threadList = list()
 
         for i in range(numberPossibleMoves):
-            threadList.append(OneDirection(copy.deepcopy(self._board), possibleMoves[i], resultQueue))
+            threadList.append(OneDirection(copy.deepcopy(self._board), possibleMoves[i], resultQueue, self._mycolor))
             threadList[i].start()
 
         # Ne pas attendre les autres si on a un résultat satisfesant ?

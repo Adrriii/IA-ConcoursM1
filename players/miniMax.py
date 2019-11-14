@@ -21,7 +21,7 @@ class miniMax(GraphicalPlayer):
 
         for m in b.legal_moves():
             b.push(m)
-            value = minValue(b,heuristic1,-1000,1000,self._mycolor,0,3)
+            value = minValue(b,heuristic1,-1000,1000,self._mycolor,0,4)
             b.pop()
 
             if value > best:
