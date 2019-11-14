@@ -16,6 +16,8 @@ class human(PlayerInterface):
         return "Human Player"
 
     def getPlayerMove(self):
+        self.display.drawBoard()
+        
         if self._board.is_game_over():
             return (-1,-1)
         

@@ -99,6 +99,8 @@ class Display():
 
 
     def drawBoard(self):
+        self.drawBackground()
+
         boardSize = self.board.get_board_size()
         boardArray = self.board.get_board()
 
@@ -126,6 +128,8 @@ class Display():
                 )
         
         self.drawPossibleMoves(self.board._BLACK)
+
+        self.refreshWindow()
 
     def refreshWindow(self):
         pygame.display.flip()
