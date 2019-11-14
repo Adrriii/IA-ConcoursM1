@@ -3,18 +3,14 @@
 import time
 from Reversi import Board
 from random import randint
-from playerInterface import *
+from graphicalPlayer import *
 
-class randomPlayer(PlayerInterface):
-
-    def __init__(self):
-        self._board = Board(10)
-        self._mycolor = None
+class randomPlayer(GraphicalPlayer):
 
     def getPlayerName(self):
         return "Random Player"
 
-    def getPlayerMove(self):
+    def nextMove(self):
         if self._board.is_game_over():
             return (-1,-1)
         moves = [m for m in self._board.legal_moves()]
@@ -22,15 +18,7 @@ class randomPlayer(PlayerInterface):
         self._board.push(move)
         (c,x,y) = move
         assert(c==self._mycolor)
-        return (x,y) 
-
-    def playOpponentMove(self, x,y):
-        assert(self._board.is_valid_move(self._opponent, x, y))
-        self._board.push([self._opponent, x, y])
-
-    def newGame(self, color):
-        self._mycolor = color
-        self._opponent = 1 if color == 2 else 2
+        return (x,y)
 
     def endGame(self, winner):
         pass
