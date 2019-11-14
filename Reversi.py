@@ -36,6 +36,10 @@ class Board:
     def get_board_size(self):
         return self._boardsize
 
+    # Retourne le tableaux contenant les cases
+    def get_board(self):
+        return self._board
+
     # Donne le nombre de pieces de blanc et noir sur le plateau
     # sous forme de tuple (blancs, noirs) 
     # Peut être utilisé si le jeu est terminé pour déterminer le vainqueur
