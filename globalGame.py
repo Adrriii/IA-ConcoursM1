@@ -68,5 +68,5 @@ class Game():
             if verbose or logging: print(player2.getPlayerName()+" wins in "+ str(totalTime[1]) + " seconds of reflexion (against " + str(totalTime[0]) + ")")
             return -3
         else:
-            if verbose or logging: print("Tie in "+ str(totalTime[1]) + " and " + str(totalTime[0]) + " seconds (Respectively "+player1.getPlayerName()+" and "+player2.getPlayerName()+")")
+            if verbose or logging: print("Tie in "+ str(totalTime[0]) + " and " + str(totalTime[1]) + " seconds (Respectively "+player1.getPlayerName()+" and "+player2.getPlayerName()+")")
             return 0
