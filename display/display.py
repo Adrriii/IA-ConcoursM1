@@ -85,17 +85,16 @@ class Display():
             1 if ghost else 0
         )
 
-    def drawPossibleMoves(self, playerColor):
+    def drawPossibleMoves(self):
         legalMoves = self.board.legal_moves()
         for move in legalMoves:
-            if move[0] == playerColor:
-                self.drawPiece(
-                    move[1] * self.caseSize + self._BOARD_OFFSET, 
-                    move[2] * self.caseSize + self._BOARD_OFFSET,
-                    self.caseSize,
-                    0,
-                    True
-                )
+            self.drawPiece(
+                move[1] * self.caseSize + self._BOARD_OFFSET, 
+                move[2] * self.caseSize + self._BOARD_OFFSET,
+                self.caseSize,
+                0,
+                True
+            )
 
 
     def drawBoard(self):
@@ -127,7 +126,7 @@ class Display():
                     boardArray[x][y]
                 )
         
-        self.drawPossibleMoves(self.board._BLACK)
+        self.drawPossibleMoves()
 
         self.refreshWindow()
 
@@ -139,7 +138,7 @@ class Display():
         legalMoves = self.board.legal_moves()
         
         for move in legalMoves:
-            if move[0] == playerColor:
+            if move[0] == playerColor or playerColor == 0:
                 if move[1] == x and move[2] == y:
                     return True
         
@@ -158,7 +157,7 @@ class Display():
                 x = (pos[0] - self._BOARD_OFFSET) // self.caseSize
                 y = (pos[1] - self._BOARD_OFFSET) // self.caseSize
 
-                if self.isLegalMove(self.board._BLACK, x, y):
+                if self.isLegalMove(0, x, y):
                     return (x, y)
 
         return ()
