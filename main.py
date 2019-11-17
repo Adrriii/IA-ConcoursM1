@@ -13,4 +13,5 @@ def compare(player1,player2,rounds):
 
     print(player1().getPlayerName() + " vs " + player2().getPlayerName() + " -> " +  str(score / rounds))
 
-compare(TestPlayer, miniMax_thread, 10)
+compare(TestPlayer, NegaBetaCredit, 10)
+#compare(myPlayer.myPlayer,NegaBetaCredit,10)
