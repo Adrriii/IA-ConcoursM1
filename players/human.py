@@ -26,6 +26,7 @@ class human(GraphicalPlayer):
         self._display.drawBoard()
 
     def newGame(self, color):
+        super().newGame(color)
         self._mycolor = color
         self._opponent = 1 if color == 2 else 2
 

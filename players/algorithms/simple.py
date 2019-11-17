@@ -3,14 +3,6 @@ def heuristic1(b,player):
     (nbwhites, nbblacks) = b.get_nb_pieces()
     return nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
 
-def heuristic2(b,player):
-    score = 0
-
-    (nbwhites, nbblacks) = b.get_nb_pieces()
-    difference = nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
-
-    score += difference / 15
-
 def maxValue(b,heuristic,alpha,beta, player,depth, max_depth):
 
     game_over = b.is_game_over()

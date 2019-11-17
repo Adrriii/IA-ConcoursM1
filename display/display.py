@@ -7,6 +7,8 @@ from Reversi import Board
 
 class Display():
     """ Display the game """
+    _READY = False
+
     _WIDTH = 640
     _HEIGHT = 720
 
@@ -32,10 +34,16 @@ class Display():
         pygame.Color("#bfb5af")
     ]
 
-    def __init__(self, board):
+    def newGame(self, board, playername, playercolor):
         self.initPygame()
         self.setBoard(board)
         self.create_window()
+        self.font = pygame.font.Font('freesansbold.ttf', 24) 
+        self.playernametext = self.font.render(playername + " as " + ("White" if playercolor == 2 else "Black"), False, (0,0,0))
+        self.color = playercolor
+
+        pygame.display.set_caption('Reversi AI')
+        self._READY = True
 
     def create_window(self):
         self.window = pygame.display.set_mode((self._WIDTH, self._HEIGHT))
@@ -95,9 +103,25 @@ class Display():
                 0,
                 True
             )
+            
+    def drawScores(self):
+        textPos = self.playernametext.get_rect()
+        textPos.center = ( self._WIDTH // 2, int(self._HEIGHT * 0.93))
 
+        (nbwhites, nbblacks) = self.board.get_nb_pieces()
+
+        score = self.font.render(str(nbblacks)+" black - "+str(nbwhites)+" white", False, (0,0,0))
+        scorePos = score.get_rect()
+        scorePos.center = ( self._WIDTH // 2, int(self._HEIGHT * 0.96))
+
+        self.window.blit(self.playernametext,textPos)
+        self.window.blit(score,scorePos)
+        
 
     def drawBoard(self):
+        if not self._READY:
+            return
+
         self.drawBackground()
 
         boardSize = self.board.get_board_size()
@@ -127,6 +151,8 @@ class Display():
                 )
         
         self.drawPossibleMoves()
+
+        self.drawScores()
 
         self.refreshWindow()
 

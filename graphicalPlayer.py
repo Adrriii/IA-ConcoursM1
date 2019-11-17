@@ -8,12 +8,12 @@ class GraphicalPlayer(PlayerInterface):
 
     def __init__(self):
         self._board = Board(10)
-        self._display = Display(self._board)
+        self._display = Display()
         self._mycolor = None
 
     # Redefine to chose next move
     def nextMove(self):
-        pass
+        return (-1,-1)
 
     def getPlayerMove(self):
         self._display.drawBoard()
@@ -29,4 +29,5 @@ class GraphicalPlayer(PlayerInterface):
 
     def newGame(self, color):
         self._mycolor = color
+        self._display.newGame(self._board, self.getPlayerName(), color)
         self._opponent = 1 if color == 2 else 2
