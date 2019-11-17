@@ -61,11 +61,11 @@ class Game():
         (nbwhites, nbblacks) = b.get_nb_pieces()
         if verbose: print("Time:", totalTime)
         if verbose: print("Winner: ", end="")
-        
-        if nbwhites > nbblacks:
+
+        if nbwhites < nbblacks:
             if verbose or logging: print(player1.getPlayerName()+" wins in "+ str(totalTime[0]) + " seconds of reflexion (against " + str(totalTime[1]) + ")")
             return 3
-        elif nbblacks > nbwhites:
+        elif nbblacks < nbwhites:
             if verbose or logging: print(player2.getPlayerName()+" wins in "+ str(totalTime[1]) + " seconds of reflexion (against " + str(totalTime[0]) + ")")
             return -3
         else:
