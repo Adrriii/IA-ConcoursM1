@@ -42,7 +42,7 @@ def simple_heuristic(board, color):
     return nbwhites - nbblacks if color == board._BLACK else nbblacks - nbwhites
 
 
-cst = 150
+cst = 50
 def heuristic_angle(board, color):
     boardSize = board.get_board_size()
     boardArray = board.get_board()
