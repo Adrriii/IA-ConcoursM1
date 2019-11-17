@@ -29,12 +29,16 @@ class NegaBetaCredit(GraphicalPlayer):
 
         current_val = self.heuristic(b,self._mycolor)
         thinking_start = now()
-        for m in b.legal_moves():
+        i = 0
+        mvs = b.legal_moves()
+        for m in mvs:
+            i += 1
+            print(str(i)+"/"+str(len(mvs)))
             b.push(m) 
             val = self.heuristic(b,self._mycolor)
             remaining_time_percent = (now() - self.game_start_time) / self.game_time_max
             remaining_time_credits = self.credit_run_out_time * abs(1-remaining_time_percent)
-            value = NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,50,current_val,val, 1,remaining_time_credits, thinking_start)
+            value = -NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,50,current_val,val, 1,remaining_time_credits, thinking_start)
             b.pop()
 
             if value > best:
