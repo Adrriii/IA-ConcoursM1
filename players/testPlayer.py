@@ -54,73 +54,90 @@ def heuristic_angle(board, color):
 
 
     if (boardArray[0][0] == color):
-        score += cst * 10
+        score += cst * 100
 
         for i in range(1, boardSize - 1):
             if boardArray[i][0] == color:
-                score += cst
+                score += cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[0][i] == color:
+                score += cst * 5
             else:
                 break
             
     elif (boardArray[0][0] != board._EMPTY):
-        score -= cst
-    elif (boardArray[1][0] == color or boardArray[1][1] == color or boardArray[0][1] == color):
-        score -= cst
+        score -= cst * 1000
 
-    if boardArray[2][2] == color:
-        score += cst
 
 
     if (boardArray[0][boardSize - 1] == color):
-        score += cst * 10
+        score += cst * 100
 
         for i in range(boardSize - 2, -1):
             if boardArray[0][i] == color:
-                score += cst
+                score += cst * 5
             else:
                 break
-    elif (boardArray[0][0] != board._EMPTY):
-        score -= cst
-    elif (boardArray[0][boardSize - 2] == color or boardArray[1][boardSize - 1] == color or boardArray[1][boardSize - 2] == color):
-        score -= cst
 
-    if boardArray[2][boardSize - 3] == color:
-        score += cst
+        for i in range(1, boardSize - 1):
+            if boardArray[i][boardSize - 1] == color:
+                score += cst * 5
+            else:
+                break
+
+    elif (boardArray[0][0] != board._EMPTY):
+        score -= cst * 1000
+
+
 
     if (boardArray[boardSize - 1][boardSize - 1] == color):
-        score += cst * 10
+        score += cst * 100
 
         for i in range(boardSize - 2, -1):
             if boardArray[board - 1][i] == color:
-                score += cst
+                score += cst * 5
+            else:
+                break
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][board - 1] == color:
+                score += cst * 5
             else:
                 break
         
     elif (boardArray[0][0] != board._EMPTY):
-        score -= cst
-    elif (boardArray[boardSize - 2][boardSize - 2] == color or boardArray[boardSize - 2][boardSize - 1] == color or boardArray[boardSize - 1][boardSize - 2] == color):
-        score -= cst
+        score -= cst * 1000
 
-    if boardArray[boardSize - 3][boardSize - 3] == color:
-        score += cst
 
     if (boardArray[boardSize - 1][0] == color):
-        score += cst * 10
+        score += cst * 100
 
         for i in range(boardSize - 2, -1):
             if boardArray[i][0] == color:
-                score += cst
+                score += cst * 5
             else:
                 break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[boardSize - 1][i] == color:
+                score += cst * 5
+            else:
+                break
+
     elif (boardArray[0][0] != board._EMPTY):
-        score -= cst
-    elif (boardArray[boardSize - 2][0] == color or boardArray[boardSize - 1][1] == color or boardArray[boardSize - 2][1] == color):
-        score -= cst
+        score -= cst * 1000
 
-    if boardArray[boardSize - 3][2] == color:
-        score += cst
+    # Take to much time
+    # if board._nextPlayer != color:
+    #     score -= len(board.legal_moves())
+    # else:
+    #     score += len(board.legal_moves())
 
-    # print(color, score)
+
+    print(color, score)
     return score
 
     
