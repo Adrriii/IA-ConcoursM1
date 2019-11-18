@@ -6,68 +6,89 @@ import sys
 
 class Game():
 
-    def __init__(self):
-        pass
+    def init(self,player1,player2):
+        board_size = 6
+        self.b = Reversi.Board(board_size)
+        self.player1 = player1
+        self.player2 = player2
 
-    def play(self,player1,player2,verbose=False,logging=False):
-        b = Reversi.Board(10)
+        self.players = []
+        self.player1.newGame(self.b._BLACK,board_size)
+        self.players.append(self.player1)
+        self.player2.newGame(self.b._WHITE,board_size)
+        self.players.append(self.player2)
 
-        players = []
-        player1.newGame(b._BLACK)
-        players.append(player1)
-        player2.newGame(b._WHITE)
-        players.append(player2)
+        self.totalTime = [0,0] # total real time for each player
+        self.nextplayer = 0
+        self.nextplayercolor = self.b._BLACK
+        self.nbmoves = 1
 
-        totalTime = [0,0] # total real time for each player
-        nextplayer = 0
-        nextplayercolor = b._BLACK
-        nbmoves = 1
+        self.time_limit = 300
 
-        outputs = ["",""]
-        sysstdout= sys.stdout
-        stringio = StringIO()
-
-        if verbose: print(b.legal_moves())
-        while not b.is_game_over():
-            if verbose: 
-                print("Referee Board:")
-                print(b)
-                print("Before move", nbmoves)
-                print("Legal Moves: ", b.legal_moves())
-            nbmoves += 1
-            otherplayer = (nextplayer + 1) % 2
-            othercolor = b._BLACK if nextplayercolor == b._WHITE else b._WHITE
+    def nextMove(self,logging=False):
+        self.nbmoves += 1
+        otherplayer = (self.nextplayer + 1) % 2
+        othercolor = self.b._BLACK if self.nextplayercolor == self.b._WHITE else self.b._WHITE
             
-            currentTime = time.time()
-            move = players[nextplayer].getPlayerMove()
-            totalTime[nextplayer] += time.time() - currentTime
-            if verbose: print("Player ", nextplayercolor, players[nextplayer].getPlayerName(), "plays" + str(move))
-            (x,y) = move 
-            if not b.is_valid_move(nextplayercolor,x,y):
-                if verbose or logging: 
-                    print(otherplayer, nextplayer, nextplayercolor)
-                    print("Problem: illegal move")
-                break
-            b.push([nextplayercolor, x, y])
-            players[otherplayer].playOpponentMove(x,y)
+        currentTime = time.time()
+        move = self.players[self.nextplayer].getPlayerMove()
+        self.totalTime[self.nextplayer] += time.time() - currentTime
+            
+        (x,y) = move 
 
-            nextplayer = otherplayer
-            nextplayercolor = othercolor
+        if not self.b.is_valid_move(self.nextplayercolor,x,y):
+            print("ERROR: illegal move from "+ ("Black" if self.nextplayercolor == self.b._BLACK else "White"))
+            return (-1,-1)
+        self.b.push([self.nextplayercolor, x, y])
+        self.players[otherplayer].playOpponentMove(x,y)
 
-            if verbose: print(b)
+        self.nextplayer = otherplayer
+        self.nextplayercolor = othercolor
 
-        if verbose: print("The game is over")
-        if verbose: print(b)
-        (nbwhites, nbblacks) = b.get_nb_pieces()
-        if verbose: print("Time:", totalTime)
-        if verbose: print("Winner: ", end="")
+        return [self.b._BLACK if self.nextplayercolor == self.b._WHITE else self.b._WHITE, x, y]
 
-        if nbwhites < nbblacks:
-            if verbose or logging: print(player1.getPlayerName()+" wins in "+ str(totalTime[0]) + " seconds of reflexion (against " + str(totalTime[1]) + ")")
+    def processGameEnd(self, logging = False):
+        if self.b.is_game_over():
+
+            (nbwhites, nbblacks) = self.b.get_nb_pieces()
+
+            if nbblacks > nbwhites:
+                if logging: print(self.player1.getPlayerName()+" wins in "+ str(self.totalTime[0]) + " seconds of reflexion (against " + str(self.totalTime[1]) + ")")
+                return 3
+            elif nbwhites > nbblacks:
+                if logging: print(self.player2.getPlayerName()+" wins in "+ str(self.totalTime[1]) + " seconds of reflexion (against " + str(self.totalTime[0]) + ")")
+                return -3
+            else:
+                if logging: print("Tie in "+ str(self.totalTime[0]) + " and " + str(self.totalTime[1]) + " seconds (Respectively "+self.player1.getPlayerName()+" and "+self.player2.getPlayerName()+")")
+                return 0
+
+        if(self.totalTime[0] > self.time_limit):
+                if logging: print(self.player2.getPlayerName()+" wins by timeout in "+ str(self.totalTime[1]) + " seconds of reflexion")
+                return -3
+
+        if(self.totalTime[1] > self.time_limit):
+                if logging: print(self.player1.getPlayerName()+" wins by timeout in "+ str(self.totalTime[0]) + " seconds of reflexion")
+                return 3
+
+        throw_player = self.players[self.nextplayer]
+
+        if(throw_player == self.player1):
+            if logging: print(self.player1.getPlayerName()+" is eliminated : Illegal move")
             return 3
-        elif nbblacks < nbwhites:
-            if verbose or logging: print(player2.getPlayerName()+" wins in "+ str(totalTime[1]) + " seconds of reflexion (against " + str(totalTime[0]) + ")")
+
+        if(throw_player == self.player2):
+            if logging: print(self.player2.getPlayerName()+" is eliminated : Illegal move")
             return -3
-        else:
-            if verbose or logging: print("Tie in "+ str(totalTime[0]) + " and " + str(totalTime[1]) + " seconds (Respectively "+player1.getPlayerName()+" and "+player2.getPlayerName()+")")
-            return 0
+
+        if logging: print("Game was inconclusive.")
+        return -3
+        
+    def play(self,player1,player2,logging=False):
+        self.init(player1,player2)
+
+        while not self.b.is_game_over() and self.totalTime[0] <= self.time_limit and self.totalTime[1] <= self.time_limit:
+            nextmove = self.nextMove(logging)
+            if( nextmove == (-1,-1) ):
+                break
+
+        return self.processGameEnd(logging)

@@ -3,7 +3,7 @@
 import time
 from Reversi import Board
 from random import randint,choice
-from graphicalPlayer import *
+from implementedPlayer import *
 from players.algorithms.simple import *
 
 from threading import Thread
@@ -35,7 +35,7 @@ class OneDirection(Thread):
 
 
 
-class miniMax_thread(GraphicalPlayer):
+class miniMax_thread(ImplementedPlayer):
 
     def getPlayerName(self):
         return "MiniMax"

@@ -2,7 +2,7 @@
 
 import time
 from Reversi import Board
-from graphicalPlayer import *
+from implementedPlayer import *
 
 from threading import Thread
 from queue import Queue
@@ -148,7 +148,7 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
 
 
 
-class TestPlayer(GraphicalPlayer):
+class TestPlayer(ImplementedPlayer):
 
 
 
