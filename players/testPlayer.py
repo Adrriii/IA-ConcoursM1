@@ -8,6 +8,8 @@ from threading import Thread
 from queue import Queue
 from random import randint,choice
 
+from players.algorithms.medium import *
+
 import copy
 
 class OneDirection(Thread):
@@ -53,44 +55,72 @@ def heuristic_angle(board, color):
 
     if (boardArray[0][0] == color):
         score += cst
+
+        for i in range(1, boardSize - 1):
+            if boardArray[i][0] == color:
+                score += cst/3
+            else:
+                break
+            
     elif (boardArray[0][0] != board._EMPTY):
         score -= cst
     elif (boardArray[1][0] == color or boardArray[1][1] == color or boardArray[0][1] == color):
-        score -= cst
+        score -= cst/2
 
     if boardArray[2][2] == color:
         score += cst/2
 
+
     if (boardArray[0][boardSize - 1] == color):
         score += cst
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[0][i] == color:
+                score += cst/3
+            else:
+                break
     elif (boardArray[0][0] != board._EMPTY):
         score -= cst
     elif (boardArray[0][boardSize - 2] == color or boardArray[1][boardSize - 1] == color or boardArray[1][boardSize - 2] == color):
-        score -= cst
+        score -= cst/2
 
     if boardArray[2][boardSize - 3] == color:
         score += cst/2
 
     if (boardArray[boardSize - 1][boardSize - 1] == color):
         score += cst
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[board - 1][i] == color:
+                score += cst/3
+            else:
+                break
+        
     elif (boardArray[0][0] != board._EMPTY):
         score -= cst
     elif (boardArray[boardSize - 2][boardSize - 2] == color or boardArray[boardSize - 2][boardSize - 1] == color or boardArray[boardSize - 1][boardSize - 2] == color):
-        score -= cst
+        score -= cst/2
 
     if boardArray[boardSize - 3][boardSize - 3] == color:
         score += cst/2
 
     if (boardArray[boardSize - 1][0] == color):
         score += cst
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][0] == color:
+                score += cst/3
+            else:
+                break
     elif (boardArray[0][0] != board._EMPTY):
         score -= cst
     elif (boardArray[boardSize - 2][0] == color or boardArray[boardSize - 1][1] == color or boardArray[boardSize - 2][1] == color):
-        score -= cst
+        score -= cst/2
 
     if boardArray[boardSize - 3][2] == color:
         score += cst/2
 
+    print(color, score)
     return score
 
     
@@ -104,7 +134,7 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
     for move in board.legal_moves():
 
         board.push(move)
-        value = negAlphaBetaDepth(board, -beta, -alpha, depth - 1, heuristic_angle, (color + 1) % 2)
+        value = negAlphaBetaDepth(board, -beta, -alpha, depth - 1, heuristic, (color + 1) % 2)
         #print(value)
         board.pop()
 
@@ -119,6 +149,8 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
 
 
 class TestPlayer(GraphicalPlayer):
+
+
 
     def getPlayerName(self):
         return "Rob's test player"
@@ -146,7 +178,7 @@ class TestPlayer(GraphicalPlayer):
                     resultQueue,
                     self._mycolor,
                     negAlphaBetaDepth,
-                    simple_heuristic,
+                    heuristic_angle,
                     4
                 )
             )
