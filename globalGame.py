@@ -7,7 +7,7 @@ import sys
 class Game():
 
     def init(self,player1,player2):
-        board_size = 6
+        board_size = 8
         self.b = Reversi.Board(board_size)
         self.player1 = player1
         self.player2 = player2
@@ -23,6 +23,8 @@ class Game():
         self.nextplayercolor = self.b._BLACK
         self.nbmoves = 1
 
+        self.skipped = False
+
         self.time_limit = 300
 
     def nextMove(self,logging=False):
@@ -37,8 +39,9 @@ class Game():
         (x,y) = move 
 
         if not self.b.is_valid_move(self.nextplayercolor,x,y):
-            print("ERROR: illegal move from "+ ("Black" if self.nextplayercolor == self.b._BLACK else "White"))
-            return (-1,-1)
+            if(x != -1 or y != -1):
+                print("ERROR: illegal move from "+ ("Black" if self.nextplayercolor == self.b._BLACK else "White"))
+                return (-2,-2)
         self.b.push([self.nextplayercolor, x, y])
         self.players[otherplayer].playOpponentMove(x,y)
 
@@ -48,7 +51,7 @@ class Game():
         return [self.b._BLACK if self.nextplayercolor == self.b._WHITE else self.b._WHITE, x, y]
 
     def processGameEnd(self, logging = False):
-        if self.b.is_game_over():
+        if self.b.is_game_over() or self.skipped:
 
             (nbwhites, nbblacks) = self.b.get_nb_pieces()
 
@@ -88,7 +91,16 @@ class Game():
 
         while not self.b.is_game_over() and self.totalTime[0] <= self.time_limit and self.totalTime[1] <= self.time_limit:
             nextmove = self.nextMove(logging)
-            if( nextmove == (-1,-1) ):
+            if( nextmove == (-2,-2) ):
                 break
+            if( nextmove == (-1,-1) ):
+                if(not self.skipped):
+                    self.skipped = True
+                else:
+                    break
+                continue
+            else:
+                self.skipped = False
+            
 
         return self.processGameEnd(logging)
