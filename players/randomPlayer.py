@@ -3,9 +3,9 @@
 import time
 from Reversi import Board
 from random import randint
-from graphicalPlayer import *
+from implementedPlayer import *
 
-class randomPlayer(GraphicalPlayer):
+class randomPlayer(ImplementedPlayer):
 
     def getPlayerName(self):
         return "Random Player"

@@ -3,10 +3,10 @@
 import time
 from Reversi import Board
 from random import randint,choice
-from graphicalPlayer import *
+from implementedPlayer import *
 from players.algorithms.simple import *
 
-class miniMax(GraphicalPlayer):
+class miniMax(ImplementedPlayer):
 
     def getPlayerName(self):
         return "MiniMax"

@@ -1,17 +1,17 @@
-import globalGame
+import graphicalGame
 import myPlayer
 from players import *
 
 def vsRandom():
-    return globalGame.Game().play(myPlayer.myPlayer(),randomPlayer())
+    return graphicalGame.GraphicalGame().play(myPlayer.myPlayer(),randomPlayer())
 
 def compare(player1,player2,rounds):
     score = 0
 
     for r in range(0,rounds):
-        score += globalGame.Game().play(player1(),player2(),False,True)
+        score += graphicalGame.GraphicalGame().play(player1(),player2(),True)
 
     print(player1().getPlayerName() + " vs " + player2().getPlayerName() + " -> " +  str(score / rounds))
 
-compare(TestPlayer, NegaBetaCredit, 10)
+compare(TestPlayer, NegaBetaCredit, 5)
 #compare(myPlayer.myPlayer,NegaBetaCredit,10)

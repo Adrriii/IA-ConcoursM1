@@ -2,10 +2,10 @@
 
 import time
 from Reversi import Board
-from graphicalPlayer import *
+from implementedPlayer import *
 
 # used to easily create a new player
-class template(GraphicalPlayer):
+class template(ImplementedPlayer):
 
     def getPlayerName(self):
         return "Name"

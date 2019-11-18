@@ -3,10 +3,10 @@
 import time
 from Reversi import Board
 from random import randint,choice
-from graphicalPlayer import *
+from implementedPlayer import *
 from players.algorithms.medium import *
 
-class NegaBetaCredit(GraphicalPlayer):
+class NegaBetaCredit(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -33,7 +33,7 @@ class NegaBetaCredit(GraphicalPlayer):
         mvs = b.legal_moves()
         for m in mvs:
             i += 1
-            print(str(i)+"/"+str(len(mvs)))
+            
             b.push(m) 
             val = self.heuristic(b,self._mycolor)
             remaining_time_percent = (now() - self.game_start_time) / self.game_time_max

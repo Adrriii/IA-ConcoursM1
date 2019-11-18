@@ -14,9 +14,6 @@ class Display():
 
     _PIECE_SIZE_RATIO = 0.9
 
-    _BOARD_OFFSET = 10
-    _BOARD_WIDTH = _WIDTH - 2 * _BOARD_OFFSET
-
     # take on https://coolors.co/, from dark to light
     _COLORS_UGLY = [
         pygame.Color("#4e5340"),
@@ -34,13 +31,11 @@ class Display():
         pygame.Color("#bfb5af")
     ]
 
-    def newGame(self, board, playername, playercolor):
+    def newGame(self, board_size):
         self.initPygame()
-        self.setBoard(board)
+        self.setBoard(board_size)
         self.create_window()
-        self.font = pygame.font.Font('freesansbold.ttf', 24) 
-        self.playernametext = self.font.render(playername + " as " + ("White" if playercolor == 2 else "Black"), False, (0,0,0))
-        self.color = playercolor
+        self.font = pygame.font.Font('freesansbold.ttf', 24)
 
         pygame.display.set_caption('Reversi AI')
         self._READY = True
@@ -54,9 +49,11 @@ class Display():
         pygame.font.init()
 
     
-    def setBoard(self, board):
-        self.board = board
-        self.caseSize = self._BOARD_WIDTH // self.board.get_board_size()
+    def setBoard(self, board_size):
+        self.board = Board(board_size)
+        self._BOARD_OFFSET = board_size
+        self._BOARD_WIDTH = self._WIDTH - 2 * self._BOARD_OFFSET
+        self.caseSize = self._BOARD_WIDTH // self._BOARD_OFFSET
 
 
     def drawBackground(self):
@@ -104,8 +101,10 @@ class Display():
                 True
             )
             
-    def drawScores(self):
-        textPos = self.playernametext.get_rect()
+    def drawScores(self, curr_playername, curr_playercolor):
+
+        playernametext = self.font.render(curr_playername + " as " + ("White" if curr_playercolor == 2 else "Black"), False, (0,0,0))
+        textPos = playernametext.get_rect()
         textPos.center = ( self._WIDTH // 2, int(self._HEIGHT * 0.93))
 
         (nbwhites, nbblacks) = self.board.get_nb_pieces()
@@ -114,11 +113,11 @@ class Display():
         scorePos = score.get_rect()
         scorePos.center = ( self._WIDTH // 2, int(self._HEIGHT * 0.96))
 
-        self.window.blit(self.playernametext,textPos)
+        self.window.blit(playernametext,textPos)
         self.window.blit(score,scorePos)
         
 
-    def drawBoard(self):
+    def drawBoard(self, curr_playername, curr_playercolor):
         if not self._READY:
             return
 
@@ -152,7 +151,7 @@ class Display():
         
         self.drawPossibleMoves()
 
-        self.drawScores()
+        self.drawScores(curr_playername, curr_playercolor)
 
         self.refreshWindow()
 
