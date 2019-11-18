@@ -13,6 +13,12 @@ class GraphicalGame(Game):
 
         self._display = Display()
         self._display.newGame(self.b.get_board_size())
+        
+        self._fps = 1000
+        self._last_frame = 0
+
+    def now(self):
+        return int(round(time.time() * 1000))
 
     def play(self,player1,player2,logging=False):
         self.init(player1,player2)
@@ -21,11 +27,9 @@ class GraphicalGame(Game):
         
         while not self.b.is_game_over() and self.totalTime[0] <= self.time_limit and self.totalTime[1] <= self.time_limit:
             nextmove = self.nextMove(logging)
-            print(self.nextplayer,"plays",nextmove)
             if( nextmove == (-2,-2) ):
                 break
             if( nextmove == (-1,-1) ):
-                print("SKIP")
                 if(not self.skipped):
                     self.skipped = True
                 else:
@@ -33,6 +37,9 @@ class GraphicalGame(Game):
             else:
                 self.skipped = False
             self._display.performMove(nextmove[0],nextmove[1],nextmove[2])
-            self._display.drawBoard(self.players[self.nextplayer].getPlayerName(), self.nextplayercolor)
+
+            if(self.now() - self._last_frame >= 1000 / self._fps):
+                self._display.drawBoard(self.players[self.nextplayer].getPlayerName(), self.nextplayercolor)
+                self._last_frame = self.now()
         
         return self.processGameEnd(logging)
