@@ -1,7 +1,7 @@
 
 import time
 
-def heuristic1(b,player):
+def heuristic1(b,player): 
     # Simplest heuristic : difference in amount of tiles
     (nbwhites, nbblacks) = b.get_nb_pieces()
     return nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
@@ -13,6 +13,99 @@ def heuristic2(b,player):
     difference = nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
 
     score += difference / 15
+
+    return score
+
+def heuristic_angle(board, color, cst=50):
+    boardSize = board.get_board_size()
+    boardArray = board.get_board()
+
+    (nbwhites, nbblacks) = board.get_nb_pieces()
+    score = (nbblacks/(nbwhites + nbblacks)) * 100 if color == board._BLACK else (nbwhites/(nbblacks + nbwhites)) * 100
+
+
+    if (boardArray[0][0] == color):
+        score += cst * 100
+
+        for i in range(1, boardSize - 1):
+            if boardArray[i][0] == color:
+                score += cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[0][i] == color:
+                score += cst * 5
+            else:
+                break
+            
+    elif (boardArray[0][0] != board._EMPTY):
+        score -= cst * 1000
+
+
+
+    if (boardArray[0][boardSize - 1] == color):
+        score += cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[0][i] == color:
+                score += cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[i][boardSize - 1] == color:
+                score += cst * 5
+            else:
+                break
+
+    elif (boardArray[0][0] != board._EMPTY):
+        score -= cst * 1000
+
+
+
+    if (boardArray[boardSize - 1][boardSize - 1] == color):
+        score += cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[board - 1][i] == color:
+                score += cst * 5
+            else:
+                break
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][board - 1] == color:
+                score += cst * 5
+            else:
+                break
+        
+    elif (boardArray[0][0] != board._EMPTY):
+        score -= cst * 1000
+
+
+    if (boardArray[boardSize - 1][0] == color):
+        score += cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][0] == color:
+                score += cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[boardSize - 1][i] == color:
+                score += cst * 5
+            else:
+                break
+
+    elif (boardArray[0][0] != board._EMPTY):
+        score -= cst * 1000
+
+    # Take to much time
+    # if board._nextPlayer != color:
+    #     score -= len(board.legal_moves())
+    # else:
+    #     score += len(board.legal_moves())
 
     return score
 
@@ -72,4 +165,24 @@ def NegaAlphaBetaCredit(b, heuristic, alpha, beta, player, credit, current_val, 
                 return alpha
 
         
+    return alpha
+
+
+def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
+    if depth == 0 or board.is_game_over():
+        return heuristic(board, color)
+
+    for move in board.legal_moves():
+
+        board.push(move)
+        value = -negAlphaBetaDepth(board, -beta, -alpha, depth - 1, heuristic, (color + 1) % 2)
+        #print(value)
+        board.pop()
+
+        if value > alpha:
+            if value > beta:
+                return value
+            
+            alpha = value
+    
     return alpha
