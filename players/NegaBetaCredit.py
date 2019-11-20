@@ -13,7 +13,7 @@ class NegaBetaCredit(ImplementedPlayer):
         self.credit_run_out_time = 30000
         self.game_start_time = now()
         self.game_time_max = 300000
-        self.heuristic = heuristic1
+        self.heuristic = heuristic2
 
     def getPlayerName(self):
         return "NegaBetaCredit"        
@@ -31,6 +31,10 @@ class NegaBetaCredit(ImplementedPlayer):
         thinking_start = now()
         i = 0
         mvs = b.legal_moves()
+
+        if(len(mvs)<=0):
+            return (-1,-1)
+
         for m in mvs:
             i += 1
             
@@ -38,7 +42,7 @@ class NegaBetaCredit(ImplementedPlayer):
             val = self.heuristic(b,self._mycolor)
             remaining_time_percent = (now() - self.game_start_time) / self.game_time_max
             remaining_time_credits = self.credit_run_out_time * abs(1-remaining_time_percent)
-            value = -NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,50,current_val,val, 1,remaining_time_credits, thinking_start)
+            value = NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,60,current_val,val, 1,remaining_time_credits, thinking_start)
             b.pop()
 
             if value > best:
@@ -48,7 +52,9 @@ class NegaBetaCredit(ImplementedPlayer):
                 moves[str(value)].append(m)
             else:
                 moves[str(value)] = [m]
-
+        print("----")
+        for meilleur in moves[str(best)]:
+            print("Score: "+str(best),meilleur)
         m = choice(moves[str(best)])
         b.push(m)
         (c,x,y) = m

@@ -57,6 +57,10 @@ class TestPlayer(ImplementedPlayer):
 
         possibleMoves = b.legal_moves()
         numberPossibleMoves = len(possibleMoves)
+
+        if (numberPossibleMoves == 0):
+            return (-1, -1)
+        
         threadList = list()
 
         for i in range(numberPossibleMoves):

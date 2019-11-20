@@ -28,6 +28,7 @@ class Board:
       
       self._stack= []
       self._successivePass = 0
+      self._last_move = 0
 
     def reset(self):
         self.__init__()
@@ -144,6 +145,7 @@ class Board:
         return True 
 
     def push(self, move):
+        self._last_move = move
         [player, x, y] = move
         assert player == self._nextPlayer
         if x==-1 and y==-1: # pass

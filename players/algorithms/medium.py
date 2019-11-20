@@ -7,12 +7,21 @@ def heuristic1(b,player):
     return nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
 
 def heuristic2(b,player):
+
     score = 0
 
     (nbwhites, nbblacks) = b.get_nb_pieces()
     difference = nbwhites - nbblacks if player == 1 else nbblacks - nbwhites
 
-    score += difference / 15
+    score += difference
+
+    boardSize = b.get_board_size()
+    
+    if((b._last_move[1] == 0 and b._last_move[2] == 0)
+        or (b._last_move[1] == boardSize-1 and b._last_move[2] == 0)
+        or (b._last_move[1] == boardSize-1 and b._last_move[2] == boardSize-1)
+        or (b._last_move[1] == 0 and b._last_move[2] == boardSize-1)):
+        score += 500
 
     return score
 
