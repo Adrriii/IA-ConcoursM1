@@ -16,6 +16,7 @@ class GraphicalGame(Game):
         
         self._fps = 1000
         self._last_frame = 0
+        self.nolimit = True
 
     def now(self):
         return int(round(time.time() * 1000))
@@ -38,7 +39,7 @@ class GraphicalGame(Game):
                 self.skipped = False
             self._display.performMove(nextmove[0],nextmove[1],nextmove[2])
 
-            if(self.now() - self._last_frame >= 1000 / self._fps):
+            if(self.nolimit or self.now() - self._last_frame >= 1000 / self._fps):
                 self._display.drawBoard(self.players[self.nextplayer].getPlayerName(), self.nextplayercolor)
                 self._last_frame = self.now()
         
