@@ -16,13 +16,40 @@ def heuristic2(b,player):
     score += difference
 
     boardSize = b.get_board_size()
+    boardEdgeIndex = boardSize - 1
     
-    if((b._last_move[1] == 0 and b._last_move[2] == 0)
-        or (b._last_move[1] == boardSize-1 and b._last_move[2] == 0)
-        or (b._last_move[1] == boardSize-1 and b._last_move[2] == boardSize-1)
-        or (b._last_move[1] == 0 and b._last_move[2] == boardSize-1)):
-        score += 500
+    for x in range(0,boardSize):
+        for y in [0,boardEdgeIndex]:
+            if(b._board[x][y] == b._EMPTY):
+                pass
 
+            add = 1
+            if(b._board[x][y] != player):
+                add = -1
+
+            if(x == 0 or x == boardEdgeIndex or y == 0 or y == boardEdgeIndex):
+                add *= 3
+                if((x == 0 or x == boardEdgeIndex) and (y == 0 or y == boardEdgeIndex)):
+                    add *= 3
+                    
+            score += add
+    
+    for y in range(1,boardEdgeIndex):
+        for x in [0,boardEdgeIndex]:
+            if(b._board[x][y] == b._EMPTY):
+                pass
+
+            add = 1
+            if(b._board[x][y] != player):
+                add = -1
+
+            if(x == 0 or x == boardEdgeIndex or y == 0 or y == boardEdgeIndex):
+                add *= 3
+                if((x == 0 or x == boardEdgeIndex) and (y == 0 or y == boardEdgeIndex)):
+                    add *= 10
+
+            score += add
+            
     return score
 
 def heuristic_angle(board, color, cst=50):
@@ -122,6 +149,7 @@ def now():
     return int(round(time.time() * 1000))
 
 def NegaAlphaBetaCredit(b, heuristic, alpha, beta, player, credit, current_val, val, depth, credit_run_out_time, thinking_start):
+
     game_over = b.is_game_over()
     
     spent = now() - thinking_start
@@ -133,10 +161,10 @@ def NegaAlphaBetaCredit(b, heuristic, alpha, beta, player, credit, current_val, 
     if credit<0 or game_over:
         if game_over:
             (nbwhites, nbblacks) = b.get_nb_pieces()
-            if nbwhites > nbblacks:
-                return 999 - depth
-            elif nbblacks > nbwhites:
+            if player == b._BLACK and nbwhites > nbblacks:
                 return -999 + depth
+            elif nbblacks > nbwhites:
+                return 999 - depth
             else:
                 return 0
         else:
@@ -145,15 +173,16 @@ def NegaAlphaBetaCredit(b, heuristic, alpha, beta, player, credit, current_val, 
     next_player = -player
 
     diff = -current_val - val
-    if diff < 2:
+    
+    if diff < 200:
         # Uninteresting move
         credit -= 35
-    elif diff>=4:
+    elif diff>=250:
         credit -= 5
-    elif diff>=8:
-        credit -= 2
+    elif diff>=230:
+        credit -= 7
     else:
-        credit -= 10
+        credit -= 20
 
     ms = []
     for m in b.legal_moves():

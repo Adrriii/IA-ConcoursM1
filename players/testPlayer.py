@@ -51,14 +51,14 @@ class TestPlayer(ImplementedPlayer):
             return (-1,-1)
         
         moves = {}
-        best = -1000
+        best = -9999
 
         resultQueue = Queue()
 
         possibleMoves = b.legal_moves()
         numberPossibleMoves = len(possibleMoves)
 
-        if (numberPossibleMoves == 0):
+        if (numberPossibleMoves <= 0):
             return (-1, -1)
         
         threadList = list()
@@ -92,6 +92,11 @@ class TestPlayer(ImplementedPlayer):
             else:
                 moves[str(value)] = [move]
                 
+        if(str(best) not in moves.keys()):
+            print(moves)
+            b.push([self._mycolor,-1,-1])
+            return (-1,-1)
+
         m = choice(moves[str(best)])
         b.push(m)
         (c,x,y) = m
