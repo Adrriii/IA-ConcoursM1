@@ -41,11 +41,23 @@ class Board:
     def get_board(self):
         return self._board
 
+    # Retourne la couleur des coins, depuis top-left, sens horaire
+    def get_corner(self):
+        return [
+            self._board[0][0],
+            self._board[self._boardsize - 1][0],
+            self._board[self._boardsize - 1][self._boardsize - 1],
+            self._board[0][self._boardsize - 1]
+        ]
+
     # Donne le nombre de pieces de blanc et noir sur le plateau
     # sous forme de tuple (blancs, noirs) 
     # Peut être utilisé si le jeu est terminé pour déterminer le vainqueur
     def get_nb_pieces(self):
       return (self._nbWHITE, self._nbBLACK)
+
+    def get_total_pieces(self):
+        return self._nbWHITE + self._nbBLACK
 
     # Vérifie si player a le droit de jouer en (x,y)
     def is_valid_move(self, player, x, y):
