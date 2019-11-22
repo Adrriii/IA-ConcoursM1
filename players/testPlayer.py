@@ -15,7 +15,7 @@ import copy
 class OneDirection(Thread):
     """ Simple thread for on specific move """
 
-    def __init__(self, board, initialMove, queue, color, algo, heuristic, depth, alpha=-1000, beta=1000):
+    def __init__(self, board, initialMove, queue, color, algo, heuristic, depth, alpha=-9999999, beta=9999999):
         Thread.__init__(self)
 
         self.heuristic = heuristic
@@ -51,7 +51,7 @@ class TestPlayer(ImplementedPlayer):
             return (-1,-1)
         
         moves = {}
-        best = -9999
+        best = -99999999
 
         resultQueue = Queue()
 
@@ -72,15 +72,12 @@ class TestPlayer(ImplementedPlayer):
                     self._mycolor,
                     negAlphaBetaDepth,
                     heuristic_angle,
-                    4
+                    3
                 )
             )
             threadList[i].start()
 
         # Ne pas attendre les autres si on a un résultat satisfesant ?
-        for i in range(numberPossibleMoves):
-            threadList[i].join()
-
         for i in range(numberPossibleMoves):
             (move, value) = resultQueue.get()
 
@@ -93,6 +90,7 @@ class TestPlayer(ImplementedPlayer):
                 moves[str(value)] = [move]
                 
         if(str(best) not in moves.keys()):
+            print(str(best) + " I'm test player")
             print(moves)
             b.push([self._mycolor,-1,-1])
             return (-1,-1)

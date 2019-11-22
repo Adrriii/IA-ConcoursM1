@@ -7,7 +7,7 @@ import sys
 class Game():
 
     def init(self,player1,player2):
-        board_size = 8
+        board_size = 10
         self.b = Reversi.Board(board_size)
         self.player1 = player1
         self.player2 = player2
