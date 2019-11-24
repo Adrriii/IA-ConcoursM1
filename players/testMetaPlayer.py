@@ -10,7 +10,7 @@ from random import randint, choice
 
 import copy
 
-ENDGAME = 7
+ENDGAME = 9
 
 # TODO: Mieux évaluer la valeur des pièces en fonction de leur position
 class ThreadSearch(Thread):
@@ -32,9 +32,10 @@ class ThreadSearch(Thread):
         self.beta = beta
 
     def run(self):
+        self.board.setInitialDomination(self.color)
         # Assume that game is not over when this function is called.
         self.board.push(self.initialMove)
-        value = self.explorationAlgo(self.board, self.alpha, self.beta, self.depth, self.heuristic, self.color)
+        value = self.explorationAlgo(self.board, self.alpha, self.beta, self.depth, self.heuristic, self.board._nextPlayer)
         self.board.pop()
 
         self.queue.put((self.initialMove, value))
@@ -49,25 +50,41 @@ def heuristic_takeAllPiece(board, player):
     return board._nbBLACK - board._nbWHITE
 
 
-def heuristic_takeCorner(board, player):
+def heuristic_takeDomination(board, player):
     """ Heuristic that try to take corner, with an advantage if it takes border """
 
     boardArray = board.get_board()
     boardSize = board.get_board_size()
 
     score = heuristic_takeAllPiece(board, player)
-    cst = score**2
+    cst = 30
 
     for corner in board.get_corner():
-        score += cst if corner is player else -cst
+        score += cst * 3 if corner is player else -cst * 3
 
     for i in [0, boardSize - 1]:
         for j in range(boardSize):
             if boardArray[i][j] is player:
-                score += cst//2
+                score += cst
+            elif boardArray[i][j] != board._EMPTY:
+                score -= cst
+
 
             if boardArray[j][i] is player:
-                score += cst//2
+                score += cst
+            elif boardArray[j][i] != board._EMPTY:
+                score -= cst
+
+    (c, x, y) = board._last_move
+
+    if x in [1, boardSize - 2] or y in [1, boardSize - 2]:
+        if c is player:
+            score -= cst
+        else:
+            score += cst
+
+
+    score *= (board.getCurrentDomination(player) - board.getInitialDomination())
 
     return score
 
@@ -82,7 +99,6 @@ def heuristic_takeVictory(board, player):
     return 1 if nbBlack < nbWhite else -1
 
 
-
 class MetaPlayer(ImplementedPlayer):
 
     def __init__(self):
@@ -94,9 +110,9 @@ class MetaPlayer(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            #self._MIDDLE:   heuristic_takeCorner,
-            self._MIDDLE:   heuristic_angle,
-            self._END:      heuristic_takeVictory
+            self._MIDDLE:   heuristic_takeDomination,
+            #self._MIDDLE:   heuristic_angle,
+            self._END:      heuristic_takeAllPiece
         }
 
         self.state = self._BEGIN
@@ -129,6 +145,8 @@ class MetaPlayer(ImplementedPlayer):
                 self.state = self._END
                 return
 
+
+    
 
     def getPlayerName(self):
         return "Rob's big brain algo"
@@ -185,6 +203,7 @@ class MetaPlayer(ImplementedPlayer):
             self._board.push([self._mycolor,-1,-1])
             return (-1,-1)
 
+        print(str(best))
         m = choice(moves[str(best)])
         self._board.push(m)
         (c,x,y) = m

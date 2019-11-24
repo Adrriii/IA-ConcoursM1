@@ -247,3 +247,17 @@ class Board:
 
     __repr__ = __str__
 
+    def getCurrentDomination(self, player):
+        (nbWhite, nbBlack) = self.get_nb_pieces()
+        if player is self._BLACK:
+            currentDomination = nbBlack / (nbBlack + nbWhite)
+        else:
+            currentDomination = nbWhite / (nbBlack + nbWhite)
+
+        return currentDomination
+
+    def setInitialDomination(self, player):
+        self.initialDomination = self.getCurrentDomination(player)
+
+    def getInitialDomination(self):
+        return self.initialDomination

@@ -213,7 +213,7 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
     for move in board.legal_moves():
 
         board.push(move)
-        value = -negAlphaBetaDepth(board, -beta, -alpha, depth - 1, heuristic, (color + 1) % 2)
+        value = -negAlphaBetaDepth(board, -beta, -alpha, depth - 1, heuristic, board._nextPlayer)
         #print(value)
         board.pop()
 
