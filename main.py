@@ -17,6 +17,6 @@ def compare(player1,player2,rounds):
 
 # compare(TestPlayer, NegaBetaCredit, 10)
 # compare(MetaPlayer, NegaBetaCredit, 5)
-# compare(MetaPlayer, randomPlayer, 5)
-compare(MetaPlayer, TestPlayer, 5)
+compare(MetaPlayer, randomPlayer, 5)
+# compare(MetaPlayer, TestPlayer, 5)
 

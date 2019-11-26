@@ -256,8 +256,8 @@ class Board:
 
         return currentDomination
 
-    def setInitialDomination(self, player):
-        self.initialDomination = self.getCurrentDomination(player)
+    def setInitialDomination(self):
+        self.initialDomination = [self.getCurrentDomination(self._BLACK), self.getCurrentDomination(self._WHITE)]
 
-    def getInitialDomination(self):
-        return self.initialDomination
+    def getInitialDomination(self, player):
+        return self.initialDomination[0 if player is self._BLACK else 1]

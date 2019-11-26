@@ -32,7 +32,7 @@ class ThreadSearch(Thread):
         self.beta = beta
 
     def run(self):
-        self.board.setInitialDomination(self.color)
+        self.board.setInitialDomination()
         # Assume that game is not over when this function is called.
         self.board.push(self.initialMove)
         value = self.explorationAlgo(self.board, self.alpha, self.beta, self.depth, self.heuristic, self.board._nextPlayer)
@@ -84,7 +84,7 @@ def heuristic_takeDomination(board, player):
             score += cst
 
 
-    score *= (board.getCurrentDomination(player) - board.getInitialDomination())
+    score *= (board.getCurrentDomination(player) - board.getInitialDomination(player))
 
     return score
 
@@ -180,7 +180,7 @@ class MetaPlayer(ImplementedPlayer):
                     self._mycolor,
                     negAlphaBetaDepth,
                     self.heuristic_dict[self.state],
-                    3 if self.state != self._END else ENDGAME
+                    4 if self.state != self._END else ENDGAME
                 )
             )
             threadList[i].start()
