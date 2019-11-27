@@ -9,37 +9,30 @@ from queue import Queue
 from random import randint, choice
 
 import copy
+import time
 
+
+# Number of empty slots on the board to switching in EndGame mode
 ENDGAME = 9
 
-# TODO: Mieux évaluer la valeur des pièces en fonction de leur position
-class ThreadSearch(Thread):
-    """ Simple thread for on specific move """
 
-    def __init__(self, board, initialMove, queue, color, explorationAlgo, heuristic, depth, alpha=-9999999, beta=9999999):
-        Thread.__init__(self)
 
-        self.heuristic = heuristic
-        self.explorationAlgo = explorationAlgo
-        self.depth = depth
+############################################
+#       Time Managment
+############################################
 
-        self.board = board
-        self.initialMove = initialMove
-        self.queue = queue
-        self.color = color
+def getTimeMillis():
+    return int(round(time.time() * 1000))
 
-        self.alpha = alpha
-        self.beta = beta
 
-    def run(self):
-        self.board.setInitialDomination()
-        # Assume that game is not over when this function is called.
-        self.board.push(self.initialMove)
-        value = self.explorationAlgo(self.board, self.alpha, self.beta, self.depth, self.heuristic, self.board._nextPlayer)
-        self.board.pop()
+def getEllapsedTime(initialTime):
+    return getTimeMillis() - initialTime
 
-        self.queue.put((self.initialMove, value))
 
+
+############################################
+#       Heuristics
+############################################
 
 def heuristic_takeAllPiece(board, player):
     """ Simple heuristic that just want to take all pieces """
@@ -99,6 +92,90 @@ def heuristic_takeVictory(board, player):
     return 1 if nbBlack < nbWhite else -1
 
 
+
+# Maximum time for each move. Has to be update dynamically
+MAX_TIME = 5
+
+INITAL_DEPTH = 4
+INITIAL_CREDIT = 10
+
+# TODO: Mieux évaluer la valeur des pièces en fonction de leur position
+# TODO: Changer l'heuristic au cours de l'exploration ? Plus précis mais prend du temps de calcul
+class ThreadSearch(Thread):
+    """ Simple thread for on specific move """
+
+    def __init__(self, board, initialMove, queue, explorationAlgo, heuristic, startTime, alpha=-9999999, beta=9999999):
+        Thread.__init__(self)
+
+        self.heuristic = heuristic
+        self.explorationAlgo = explorationAlgo
+
+        self.board = board
+        self.initialMove = initialMove
+        self.queue = queue
+
+        self.startTime = startTime
+
+        self.alpha = alpha
+        self.beta = beta
+
+    def run(self):
+        self.board.setInitialDomination()
+
+        self.board.push(self.initialMove)
+        value = self.explorationAlgo(self.board, self.startTime,self.alpha, self.beta, self.heuristic, self.board._nextPlayer)
+        self.board.pop()
+
+
+        self.queue.put((self.initialMove, value))
+
+
+# Must be higher than any heuristic resutl
+MAX_VALUE = 999999999
+MIN_VALUE = -MAX_VALUE
+
+
+def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
+    initalCredit = INITIAL_CREDIT
+    initalDepth = INITAL_DEPTH
+
+    moves = board.legal_moves()
+
+    if len(moves) == 0:
+        return MIN_VALUE
+
+    indexes = [i for i in range(len(moves))]
+
+    # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
+    while (getEllapsedTime(startTime) < MAX_TIME):
+        currentCredit = initalCredit * initalDepth
+
+        for i in indexes:
+            pass
+
+        initalCredit += 15 # Upddating initialDepth seems useless, initialCredit is enought
+
+
+
+def negAlphaBetaTime(board, alpha, beta, heuristic, player):
+    if board.is_game_over():
+        return heuristic(board, player)
+
+    for move in board.legal_moves():
+
+        board.push(move)
+        value = -negAlphaBetaDepth(board, -beta, -alpha, heuristic, board._nextPlayer)
+        board.pop()
+
+        if value > alpha:
+            if value > beta:
+                return value
+            
+            alpha = value
+    
+    return alpha
+
+
 class MetaPlayer(ImplementedPlayer):
 
     def __init__(self):
@@ -108,14 +185,18 @@ class MetaPlayer(ImplementedPlayer):
         self._MIDDLE    = 1
         self._END       = 2
 
+        # À la base l'heuristique takeVictory était utilisée, mais dans le cas
+        # ou la victoire n'est pas évidente, retourne un coup aléatoire 
+        # parmis les coups à -1.... Commencer plus tôt endGame avec takeVitory ?
+
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
             self._MIDDLE:   heuristic_takeDomination,
-            #self._MIDDLE:   heuristic_angle,
             self._END:      heuristic_takeAllPiece
         }
 
         self.state = self._BEGIN
+
 
 
     def updateGameState(self):
@@ -137,6 +218,7 @@ class MetaPlayer(ImplementedPlayer):
                         self.state = self._MIDDLE
                         return
 
+
         elif self.state is self._MIDDLE:
             nbPieces = self._board.get_total_pieces()
 
@@ -147,7 +229,6 @@ class MetaPlayer(ImplementedPlayer):
 
 
     
-
     def getPlayerName(self):
         return "Rob's big brain algo"
 
@@ -171,16 +252,22 @@ class MetaPlayer(ImplementedPlayer):
         threadResultQueue = Queue()
         threadList = list()
 
+        startTime = getTimeMillis()
+
         for i in range(numberPossibleMoves):
+            # start Thread using default alpha/beta value. 
+            # TODO: Change it for endGame !
+
             threadList.append(
                 ThreadSearch(
                     copy.deepcopy(self._board),
                     possibleMoves[i],
                     threadResultQueue,
                     self._mycolor,
-                    negAlphaBetaDepth,
+                    negAlphaBetaTimeLaucher,
                     self.heuristic_dict[self.state],
-                    4 if self.state != self._END else ENDGAME
+                    4 if self.state != self._END else ENDGAME,
+                    startTime
                 )
             )
             threadList[i].start()
