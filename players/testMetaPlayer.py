@@ -94,10 +94,16 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be update dynamically
-MAX_TIME = 5
+MAX_TIME_MILLIS = 5000
 
 INITAL_DEPTH = 4
 INITIAL_CREDIT = 10
+
+
+GOOD_MOVE_VALUE = 2
+MEDIUM_MOVE_VALUE = 10
+BAD_MOVE_VALUE = 35
+
 
 # TODO: Mieux évaluer la valeur des pièces en fonction de leur position
 # TODO: Changer l'heuristic au cours de l'exploration ? Plus précis mais prend du temps de calcul
@@ -122,6 +128,7 @@ class ThreadSearch(Thread):
     def run(self):
         self.board.setInitialDomination()
 
+
         self.board.push(self.initialMove)
         value = self.explorationAlgo(self.board, self.startTime,self.alpha, self.beta, self.heuristic, self.board._nextPlayer)
         self.board.pop()
@@ -140,7 +147,6 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
     initalDepth = INITAL_DEPTH
 
     moves = board.legal_moves()
-
     if len(moves) == 0:
         return MIN_VALUE
 
@@ -150,7 +156,7 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
     resultList = list() # Maybe dict is more readable
 
     # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
-    while (getEllapsedTime(startTime) < MAX_TIME):
+    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
         currentCredit = initalCredit * initalDepth
 
         for i in indexes:
@@ -189,7 +195,7 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
     if numberCredit < 0:
         return heuristic(board, player)
 
-    if getEllapsedTime(startTime) > MAX_TIME or board.is_game_over():
+    if getEllapsedTime(startTime) > MAX_TIME_MILLIS or board.is_game_over():
         return heuristic(board, player)
 
     for move in board.legal_moves():
@@ -197,6 +203,15 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
         board.push(move)
 
         # Decrement numberCredit !
+        dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
+        
+        if dominationDiff < -0.1:
+            numberCredit -= BAD_MOVE_VALUE
+        elif dominationDiff < 0.2:
+            numberCredit -= MEDIUM_MOVE_VALUE
+        else:
+            numberCredit -= GOOD_MOVE_VALUE
+
         value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit)
         board.pop()
 
@@ -291,15 +306,15 @@ class MetaPlayer(ImplementedPlayer):
             # start Thread using default alpha/beta value. 
             # TODO: Change it for endGame !
 
+            # self, board, initialMove, queue, explorationAlgo, heuristic, startTime, alpha=-9999999, beta=9999999)
+
             threadList.append(
                 ThreadSearch(
                     copy.deepcopy(self._board),
                     possibleMoves[i],
                     threadResultQueue,
-                    self._mycolor,
                     negAlphaBetaTimeLaucher,
                     self.heuristic_dict[self.state],
-                    4 if self.state != self._END else ENDGAME,
                     startTime
                 )
             )
@@ -327,6 +342,8 @@ class MetaPlayer(ImplementedPlayer):
         m = choice(moves[str(best)])
         self._board.push(m)
         (c,x,y) = m
+
+        print("Ellapsed time for this move in millis -> ", getEllapsedTime(startTime))
 
         return (x,y)
         
