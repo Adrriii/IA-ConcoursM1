@@ -155,6 +155,7 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
     # Will contain result (moveIndex, heuristicValue)
     resultList = list() # Maybe dict is more readable
 
+    best_move = MIN_VALUE
     # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
         currentCredit = initalCredit * initalDepth
@@ -181,13 +182,17 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         ###########################
         # Permutation des indexes
 
-        for i in len(resultList):
+        for i in range(len(resultList)):
             indexes[i] = resultList[i][0]
 
-        initalCredit += 15 # Upddating initialDepth seems useless, initialCredit is enought
+        if resultList[0][1] > best_move:
+            best_move = resultList[0][1]
+
+        resultList = list()
+        initalCredit += 15 # Upddating initialDepth seems useless, initialCredit is enough
 
     # Return the best value
-    return resultList[0][1]
+    return best_move
 
 
 
