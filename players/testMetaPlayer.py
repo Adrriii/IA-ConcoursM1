@@ -156,11 +156,9 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         for i in indexes:
             board.push(moves[i])
 
-            # Penser à donner le temps à l'algorithme !
-            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer)
+            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit)
 
             board.pop()
-
 
             ################################################
             # On insert les valeurs dans l'ordre décroissant
@@ -187,14 +185,19 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
 
 
 
-def negAlphaBetaTime(board, alpha, beta, heuristic, player):
-    if board.is_game_over():
+def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCredit):
+    if numberCredit < 0:
+        return heuristic(board, player)
+
+    if getEllapsedTime(startTime) > MAX_TIME or board.is_game_over():
         return heuristic(board, player)
 
     for move in board.legal_moves():
 
         board.push(move)
-        value = -negAlphaBetaDepth(board, -beta, -alpha, heuristic, board._nextPlayer)
+
+        # Decrement numberCredit !
+        value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit)
         board.pop()
 
         if value > alpha:
