@@ -49,7 +49,7 @@ def heuristic_takeDomination(board, player):
     boardArray = board.get_board()
     boardSize = board.get_board_size()
 
-    score = heuristic_takeAllPiece(board, player)
+    score = 0
     cst = 30
 
     for corner in board.get_corner():
@@ -66,7 +66,7 @@ def heuristic_takeDomination(board, player):
             if boardArray[j][i] is player:
                 score += cst
             elif boardArray[j][i] != board._EMPTY:
-                score -= cst
+                score -= cst 
 
     (c, x, y) = board._last_move
 
@@ -163,8 +163,10 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         for i in indexes:
             board.push(moves[i])
 
-            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit)
+            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 3)
 
+            if (currentValue == MAX_VALUE):
+                return MAX_VALUE
             board.pop()
 
             ################################################
@@ -196,12 +198,24 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
 
 
 
-def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCredit):
+def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
+        print("No more credits -> ", depth)
         return heuristic(board, player)
 
-    if getEllapsedTime(startTime) > MAX_TIME_MILLIS or board.is_game_over():
+    if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        print("No more time -> ", depth)
+
         return heuristic(board, player)
+
+    if board.is_game_over():
+        (nbWhite, nbBlack) = board.get_nb_pieces()
+        print("Game is over -> ", depth)
+        if player is board._BLACK:
+            return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
+
+        if player is board._WHITE:
+            return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
 
     for move in board.legal_moves():
 
@@ -217,7 +231,7 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
         else:
             numberCredit -= GOOD_MOVE_VALUE
 
-        value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit)
+        value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1)
         board.pop()
 
         if value > alpha:
@@ -338,16 +352,14 @@ class MetaPlayer(ImplementedPlayer):
                 moves[str(value)] = [move]
                 
         if(str(best) not in moves.keys()):
-            print(str(best))
-            print(moves)
             self._board.push([self._mycolor,-1,-1])
             return (-1,-1)
 
-        print(str(best))
         m = choice(moves[str(best)])
         self._board.push(m)
         (c,x,y) = m
 
+        print("Value -> ", best)
         print("Ellapsed time for this move in millis -> ", getEllapsedTime(startTime))
 
         return (x,y)

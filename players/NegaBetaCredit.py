@@ -43,7 +43,7 @@ class NegaBetaCredit(ImplementedPlayer):
             remaining_time_percent = (now() - self.game_start_time) / self.game_time_max
             remaining_time_credits = self.credit_run_out_time * abs(1-remaining_time_percent)
             
-            value = -NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,40,current_val,val, 1,remaining_time_credits, thinking_start)
+            value = -NegaAlphaBetaCredit(b,self.heuristic,-1000,1000,self._mycolor,70,current_val,val, 1,remaining_time_credits, thinking_start)
             b.pop()
 
             if value > best:
