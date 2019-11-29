@@ -11,12 +11,12 @@ def compare(player1,player2,rounds):
 
     for r in range(0,rounds):
         score += graphicalGame.GraphicalGame().play(player1(),player2(),True)
-        time.sleep(3.)   
+        time.sleep(10.)   
 
     print(player1().getPlayerName() + " vs " + player2().getPlayerName() + " -> " +  str(score / rounds))
 
 # compare(TestPlayer, NegaBetaCredit, 10)
-compare(MetaPlayer, NegaBetaCredit, 5)
+compare(SequentialIterative, MetaPlayer, 5)
 # compare(MetaPlayer, randomPlayer, 5)
 # compare(MetaPlayer, TestPlayer, 5)
 

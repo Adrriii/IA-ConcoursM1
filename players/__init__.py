@@ -5,3 +5,4 @@ from .miniMax_thread import miniMax_thread
 from .testPlayer import TestPlayer
 from .NegaBetaCredit import NegaBetaCredit
 from .testMetaPlayer import MetaPlayer
+from.sequentialIterativeTimePlayer import SequentialIterative

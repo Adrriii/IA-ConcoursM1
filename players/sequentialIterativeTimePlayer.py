@@ -87,37 +87,6 @@ MEDIUM_MOVE_VALUE = 15
 BAD_MOVE_VALUE = 35
 
 
-# TODO: Mieux évaluer la valeur des pièces en fonction de leur position
-# TODO: Changer l'heuristic au cours de l'exploration ? Plus précis mais prend du temps de calcul
-class ThreadSearch(Thread):
-    """ Simple thread for on specific move """
-
-    def __init__(self, board, initialMove, queue, explorationAlgo, heuristic, startTime, alpha=-9999999, beta=9999999):
-        Thread.__init__(self)
-
-        self.heuristic = heuristic
-        self.explorationAlgo = explorationAlgo
-
-        self.board = board
-        self.initialMove = initialMove
-        self.queue = queue
-
-        self.startTime = startTime
-
-        self.alpha = alpha
-        self.beta = beta
-
-    def run(self):
-        self.board.setInitialDomination()
-
-        self.board.push(self.initialMove)
-        value = self.explorationAlgo(self.board, self.startTime,self.alpha, self.beta, self.heuristic, self.board._nextPlayer)
-        self.board.pop()
-
-
-        self.queue.put((self.initialMove, value))
-
-
 # Must be higher than any heuristic resutl
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
@@ -131,27 +100,29 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         return MIN_VALUE
 
     indexes = [i for i in range(len(moves))]
+    board.setInitialDomination()
 
     
     
     # Will contain result (moveIndex, heuristicValue)
     resultList = list() # Maybe dict is more readable
 
-    best_move = MIN_VALUE
+    best_move = (MIN_VALUE, (-1, -1))
     vague = 0
 
     # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
         print("Vague -> {}, credit -> {}".format(vague, currentCredit))
         vague += 1
-        for i in indexes:
-            board.push(moves[i])
 
-            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 3)
+        for i in indexes:
+
+            board.push(moves[i])
+            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 1)
+            board.pop()
 
             if (currentValue == MAX_VALUE):
-                return MAX_VALUE
-            board.pop()
+                return (MAX_VALUE, moves[i])
 
             ################################################
             # On insert les valeurs dans l'ordre décroissant
@@ -163,7 +134,7 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
                     insertIndex = j
                     break
 
-            resultList.insert(insertIndex, (i, currentValue))
+            resultList.insert(insertIndex, (i, currentValue, moves[i]))
 
         ###########################
         # Permutation des indexes
@@ -171,13 +142,13 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         for i in range(len(resultList)):
             indexes[i] = resultList[i][0]
 
-        if resultList[0][1] > best_move:
-            best_move = resultList[0][1]
+        if resultList[0][1] > best_move[0]:
+            best_move = (resultList[0][1], resultList[0][2])
 
         resultList = list()
         currentCredit += 10
 
-    # Return the best value
+    # Return the best move
     return best_move
 
 
@@ -189,8 +160,8 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
         # print("No more time -> ", depth)
-
         return heuristic(board, player)
+
 
     if board.is_game_over():
         (nbWhite, nbBlack) = board.get_nb_pieces()
@@ -229,7 +200,7 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
     return alpha
 
 
-class MetaPlayer(ImplementedPlayer):
+class SequentialIterative(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -283,7 +254,7 @@ class MetaPlayer(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Rob's algo para"
+        return "Rob's algo seq"
 
 
     def nextMove(self):
@@ -299,56 +270,19 @@ class MetaPlayer(ImplementedPlayer):
             return (-1, -1)
 
         self.updateGameState()
-        moves = {}
-        best = -999999
-
-        threadResultQueue = Queue()
-        threadList = list()
 
         startTime = getTimeMillis()
 
-        for i in range(numberPossibleMoves):
-            # start Thread using default alpha/beta value. 
-            # TODO: Change it for endGame !
+        (value, move) = negAlphaBetaTimeLaucher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
 
-            # self, board, initialMove, queue, explorationAlgo, heuristic, startTime, alpha=-9999999, beta=9999999)
+        print(value, move)
 
-            threadList.append(
-                ThreadSearch(
-                    copy.deepcopy(self._board),
-                    possibleMoves[i],
-                    threadResultQueue,
-                    negAlphaBetaTimeLaucher,
-                    self.heuristic_dict[self.state],
-                    startTime
-                )
-            )
-            threadList[i].start()
+        self._board.push(move)
 
-        for i in range(numberPossibleMoves):
-            (move, value) = threadResultQueue.get()
-
-            if value > best:
-                best = value
-            
-            # Peut être mieux fait ?
-            if str(value) in moves:
-                moves[str(value)].append(move)
-            else:
-                moves[str(value)] = [move]
-                
-        if(str(best) not in moves.keys()):
-            self._board.push([self._mycolor,-1,-1])
-            return (-1,-1)
-
-        m = choice(moves[str(best)])
-        self._board.push(m)
-        (c,x,y) = m
-
-        print("Value -> ", best)
+        print("Value -> ", value)
         print("Ellapsed time for this move in millis -> ", getEllapsedTime(startTime))
 
-        return (x,y)
+        return (move[1], move[2])
         
 
     def endGame(self, color):

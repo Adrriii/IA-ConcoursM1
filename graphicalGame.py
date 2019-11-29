@@ -8,7 +8,7 @@ from time import sleep
 
 class GraphicalGame(Game):
 
-    def init(self,player1,player2):
+    def init(self,player1,player2): 
         super().init(player1,player2)
 
         self._display = Display()

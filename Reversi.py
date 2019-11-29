@@ -41,6 +41,14 @@ class Board:
     def get_board(self):
         return self._board
 
+    def get_corner_coord(self):
+        return [
+            (0, 0),
+            (self._boardsize - 1, 0),
+            (self._boardsize - 1, self._boardsize - 1),
+            (0, self._boardsize - 1)
+        ]
+
     # Retourne la couleur des coins, depuis top-left, sens horaire
     def get_corner(self):
         return [
