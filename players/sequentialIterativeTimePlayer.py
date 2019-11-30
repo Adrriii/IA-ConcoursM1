@@ -28,7 +28,7 @@ def getTimeMillis():
 def getEllapsedTime(initialTime):
     return getTimeMillis() - initialTime
 
-
+ 
 
 ############################################
 #       Heuristics
@@ -87,47 +87,38 @@ MEDIUM_MOVE_VALUE = 15
 BAD_MOVE_VALUE = 35
 
 
+
+
 # Must be higher than any heuristic resutl
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
 
 
-def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
+def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
 
     moves = board.legal_moves()
-    if len(moves) == 0:
-        return MIN_VALUE
 
-    indexes = [i for i in range(len(moves))]
-    board.setInitialDomination()
-
-    
+    indexes = [i for i in range(len(moves))]    
     
     # Will contain result (moveIndex, heuristicValue)
-    resultList = list() # Maybe dict is more readable
+    resultList = list()
 
-    best_move = (MIN_VALUE, (-1, -1))
-    vague = 0
+    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Enemy side, so badest value is MAX_VALUE
 
-    # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
+    # We are on enemy side in the function. We are looking for min value
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
-        print("Vague -> {}, credit -> {}".format(vague, currentCredit))
-        vague += 1
 
         for i in indexes:
 
             board.push(moves[i])
-            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 1)
+            currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 1)
             board.pop()
 
-            if (currentValue == MAX_VALUE):
-                return (MAX_VALUE, moves[i])
-
             ################################################
-            # On insert les valeurs dans l'ordre décroissant
+            # On insert les valeurs dans l'ordre croissant
 
-            insertIndex = len(resultList) #Par défaut on insert à la fin
+            insertIndex = 0 
 
             for j in range(len(resultList)):
                 if resultList[j][1] < currentValue:
@@ -148,29 +139,30 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         resultList = list()
         currentCredit += 10
 
-    # Return the best move
+    # Return the best value, in enemy side is the min Value
     return best_move
 
 
 
-def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        # print("No more credits -> ", depth)
+        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        # print("No more time -> ", depth)
+        print("Depth -> ", depth)
         return heuristic(board, player)
 
-
     if board.is_game_over():
+        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
-        # print("Game is over -> ", depth)
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
 
         if player is board._WHITE:
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
+
+    creditForNext = 0
 
     for move in board.legal_moves():
 
@@ -182,22 +174,65 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
 
         
         if dominationDiff < -0.1:
-            numberCredit -= BAD_MOVE_VALUE
+            creditForNext = numberCredit - BAD_MOVE_VALUE
         elif dominationDiff < 0.2:
-            numberCredit -= MEDIUM_MOVE_VALUE
+            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
         else:
-            numberCredit -= GOOD_MOVE_VALUE
+            creditForNext = numberCredit - GOOD_MOVE_VALUE
 
-        value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1)
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
         board.pop()
 
-        if value > alpha:
-            if value > beta:
-                return value
-            
-            alpha = value
+        if alpha >= beta:
+            return beta
     
     return alpha
+
+
+
+def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+    if numberCredit < 0:
+        print("Depth -> ", depth)
+        return heuristic(board, player)
+
+    if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        print("Depth -> ", depth)
+        return heuristic(board, player)
+
+    if board.is_game_over():
+        print("Depth -> ", depth)
+        (nbWhite, nbBlack) = board.get_nb_pieces()
+        if player is board._BLACK:
+            return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
+
+        if player is board._WHITE:
+            return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
+
+    creditForNext = 0
+
+    for move in board.legal_moves():
+
+        board.push(move)
+
+        # Decrement numberCredit !
+        # Is it a good idea to use domination for this ?
+        dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
+
+        
+        if dominationDiff < -0.1:
+            creditForNext = numberCredit - BAD_MOVE_VALUE
+        elif dominationDiff < 0.2:
+            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
+        else:
+            creditForNext = numberCredit - GOOD_MOVE_VALUE
+
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        board.pop()
+
+        if alpha >= beta:
+            return alpha
+    
+    return beta
 
 
 class SequentialIterative(ImplementedPlayer):
@@ -215,7 +250,7 @@ class SequentialIterative(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_takeDomination,
+            self._MIDDLE:   heuristic_angle,
             self._END:      heuristic_takeAllPiece
         }
 
@@ -270,19 +305,18 @@ class SequentialIterative(ImplementedPlayer):
             return (-1, -1)
 
         self.updateGameState()
+        self._board.setInitialDomination()
 
         startTime = getTimeMillis()
+        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._board._nextPlayer)
 
-        (value, move) = negAlphaBetaTimeLaucher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
-
-        print(value, move)
-
-        self._board.push(move)
+        self._board.push(value[1])
+        (_,x,y) = value[1]
 
         print("Value -> ", value)
         print("Ellapsed time for this move in millis -> ", getEllapsedTime(startTime))
 
-        return (move[1], move[2])
+        return (x,y)
         
 
     def endGame(self, color):

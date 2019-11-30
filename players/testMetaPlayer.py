@@ -28,7 +28,7 @@ def getTimeMillis():
 def getEllapsedTime(initialTime):
     return getTimeMillis() - initialTime
 
-
+ 
 
 ############################################
 #       Heuristics
@@ -111,7 +111,7 @@ class ThreadSearch(Thread):
         self.board.setInitialDomination()
 
         self.board.push(self.initialMove)
-        value = self.explorationAlgo(self.board, self.startTime,self.alpha, self.beta, self.heuristic, self.board._nextPlayer)
+        value = self.explorationAlgo(self.board, self.startTime, self.alpha, self.beta, self.heuristic, self.board._nextPlayer)
         self.board.pop()
 
 
@@ -123,43 +123,34 @@ MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
 
 
-def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
+def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
 
     moves = board.legal_moves()
-    if len(moves) == 0:
-        return MIN_VALUE
 
-    indexes = [i for i in range(len(moves))]
-
-    
+    indexes = [i for i in range(len(moves))]    
     
     # Will contain result (moveIndex, heuristicValue)
-    resultList = list() # Maybe dict is more readable
+    resultList = list()
 
-    best_move = MIN_VALUE
-    vague = 0
+    best_move = MAX_VALUE # Enemy side, so badest value is MAX_VALUE
 
-    # Lancer chaque calcul itérativement, et insérer les valeurs par order décroissant avec l'index dans un tableau
+    # We are on enemy side in the function. We are looking for min value
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
-        print("Vague -> {}, credit -> {}".format(vague, currentCredit))
-        vague += 1
+
         for i in indexes:
+
             board.push(moves[i])
-
-            currentValue = negAlphaBetaTime(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 3)
-
-            if (currentValue == MAX_VALUE):
-                return MAX_VALUE
+            currentValue = MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 2) # Already 2 moves 
             board.pop()
 
             ################################################
-            # On insert les valeurs dans l'ordre décroissant
+            # On insert les valeurs dans l'ordre croissant
 
-            insertIndex = len(resultList) #Par défaut on insert à la fin
+            insertIndex = 0 
 
             for j in range(len(resultList)):
-                if resultList[j][1] < currentValue:
+                if resultList[j][1] > currentValue:
                     insertIndex = j
                     break
 
@@ -171,35 +162,36 @@ def negAlphaBetaTimeLaucher(board, startTime, alpha, beta, heuristic, player):
         for i in range(len(resultList)):
             indexes[i] = resultList[i][0]
 
-        if resultList[0][1] > best_move:
+        if resultList[0][1] < best_move:
             best_move = resultList[0][1]
 
         resultList = list()
         currentCredit += 10
 
-    # Return the best value
+    # Return the best value, in enemy side is the min Value
     return best_move
 
 
 
-def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        # print("No more credits -> ", depth)
+        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        # print("No more time -> ", depth)
-
+        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if board.is_game_over():
+        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
-        # print("Game is over -> ", depth)
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
 
         if player is board._WHITE:
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
+
+    creditForNext = 0
 
     for move in board.legal_moves():
 
@@ -211,22 +203,65 @@ def negAlphaBetaTime(board, alpha, beta, heuristic, player, startTime, numberCre
 
         
         if dominationDiff < -0.1:
-            numberCredit -= BAD_MOVE_VALUE
+            creditForNext = numberCredit - BAD_MOVE_VALUE
         elif dominationDiff < 0.2:
-            numberCredit -= MEDIUM_MOVE_VALUE
+            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
         else:
-            numberCredit -= GOOD_MOVE_VALUE
+            creditForNext = numberCredit - GOOD_MOVE_VALUE
 
-        value = -negAlphaBetaTime(board, -beta, -alpha, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1)
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
         board.pop()
 
-        if value > alpha:
-            if value > beta:
-                return value
-            
-            alpha = value
+        if alpha >= beta:
+            return beta
     
     return alpha
+
+
+
+def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+    if numberCredit < 0:
+        print("Depth -> ", depth)
+        return heuristic(board, player)
+
+    if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        print("Depth -> ", depth)
+        return heuristic(board, player)
+
+    if board.is_game_over():
+        print("Depth -> ", depth)
+        (nbWhite, nbBlack) = board.get_nb_pieces()
+        if player is board._BLACK:
+            return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
+
+        if player is board._WHITE:
+            return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
+
+    creditForNext = 0
+
+    for move in board.legal_moves():
+
+        board.push(move)
+
+        # Decrement numberCredit !
+        # Is it a good idea to use domination for this ?
+        dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
+
+        
+        if dominationDiff < -0.1:
+            creditForNext = numberCredit - BAD_MOVE_VALUE
+        elif dominationDiff < 0.2:
+            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
+        else:
+            creditForNext = numberCredit - GOOD_MOVE_VALUE
+
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        board.pop()
+
+        if alpha >= beta:
+            return alpha
+    
+    return beta
 
 
 class MetaPlayer(ImplementedPlayer):
@@ -244,7 +279,7 @@ class MetaPlayer(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_takeDomination,
+            self._MIDDLE:   heuristic_angle,
             self._END:      heuristic_takeAllPiece
         }
 
@@ -318,7 +353,7 @@ class MetaPlayer(ImplementedPlayer):
                     copy.deepcopy(self._board),
                     possibleMoves[i],
                     threadResultQueue,
-                    negAlphaBetaTimeLaucher,
+                    alphaBetaLauncher,
                     self.heuristic_dict[self.state],
                     startTime
                 )
