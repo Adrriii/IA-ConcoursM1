@@ -54,6 +54,12 @@ def heuristic_takeDomination(board, player):
     score = (board.getCurrentDomination(player) - board.getInitialDomination(player)) * 100
     cst = 30
 
+    for corner in board.get_corner():
+        if corner is player:
+            score += score
+        else:
+            score -= score
+
     (m, x, y) = board._last_move
 
     if (x, y) in board.get_corner_coord():
@@ -69,18 +75,26 @@ def heuristic_takeVictory(board, player):
     """ Heuristic for victory """
     (nbWhite, nbBlack) = board.get_nb_pieces()
 
-    if player is board._BLACK:
-        return 1 if nbBlack > nbWhite else -1
+    if (board.is_game_over()):
+        if player is board._BLACK:
+            if nbBlack > nbWhite:
+                return MAX_VALUE
+            return MIN_VALUE
+        
+        if player is board._WHITE:
+            if nbWhite > nbWhite:
+                return MAX_VALUE
+            return MIN_VALUE
 
-    return 1 if nbBlack < nbWhite else -1
+    return board.getCurrentDomination(player)
 
 
 
 # Maximum time for each move. Has to be update dynamically
 MAX_TIME_MILLIS = 5000
 
-INITIAL_CREDIT = 40
 
+INITIAL_CREDIT = 40
 
 GOOD_MOVE_VALUE = 2
 MEDIUM_MOVE_VALUE = 15
@@ -101,7 +115,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
     indexes = [i for i in range(len(moves))]    
     
-    # Will contain result (moveIndex, heuristicValue)
+    # Will contain result (moveIndex, heuristicValue, move)
     resultList = list()
 
     best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Enemy side, so badest value is MAX_VALUE
@@ -118,7 +132,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
             ################################################
             # On insert les valeurs dans l'ordre croissant
 
-            insertIndex = 0 
+            insertIndex = len(resultList)
 
             for j in range(len(resultList)):
                 if resultList[j][1] < currentValue:
@@ -162,25 +176,22 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
         if player is board._WHITE:
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
 
-    creditForNext = 0
+    # Decrement numberCredit !
+    # Is it a good idea to use domination for this ?
+    dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
+
+    
+    if dominationDiff < -0.1:
+        numberCredit -= BAD_MOVE_VALUE
+    elif dominationDiff < 0.2:
+        numberCredit -= MEDIUM_MOVE_VALUE
+    else:
+        numberCredit -= GOOD_MOVE_VALUE
 
     for move in board.legal_moves():
 
         board.push(move)
-
-        # Decrement numberCredit !
-        # Is it a good idea to use domination for this ?
-        dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
-
-        
-        if dominationDiff < -0.1:
-            creditForNext = numberCredit - BAD_MOVE_VALUE
-        elif dominationDiff < 0.2:
-            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
-        else:
-            creditForNext = numberCredit - GOOD_MOVE_VALUE
-
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -208,25 +219,24 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
         if player is board._WHITE:
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
 
-    creditForNext = 0
 
+    # Decrement numberCredit !
+    # Is it a good idea to use domination for this ?
+    dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
+
+    
+    if dominationDiff < -0.1:
+        numberCredit -= BAD_MOVE_VALUE
+    elif dominationDiff < 0.2:
+        numberCredit -= MEDIUM_MOVE_VALUE
+    else:
+        numberCredit -= GOOD_MOVE_VALUE
+
+    
     for move in board.legal_moves():
 
         board.push(move)
-
-        # Decrement numberCredit !
-        # Is it a good idea to use domination for this ?
-        dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
-
-        
-        if dominationDiff < -0.1:
-            creditForNext = numberCredit - BAD_MOVE_VALUE
-        elif dominationDiff < 0.2:
-            creditForNext = numberCredit - MEDIUM_MOVE_VALUE
-        else:
-            creditForNext = numberCredit - GOOD_MOVE_VALUE
-
-        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -250,7 +260,7 @@ class SequentialIterative(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_angle,
+            self._MIDDLE:   heuristic_takeDomination,
             self._END:      heuristic_takeAllPiece
         }
 
