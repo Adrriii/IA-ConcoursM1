@@ -59,6 +59,7 @@ def heuristic_angle(board, color, cst=50):
     (nbwhites, nbblacks) = board.get_nb_pieces()
     score = (nbblacks/(nbwhites + nbblacks)) * 100 if color == board._BLACK else (nbwhites/(nbblacks + nbwhites)) * 100
 
+    oponent = board._BLACK if color is board._WHITE else board._WHITE
 
     if (boardArray[0][0] == color):
         score += cst * 100
@@ -74,9 +75,23 @@ def heuristic_angle(board, color, cst=50):
                 score += cst * 5
             else:
                 break
+
+    elif (boardArray[0][0] == oponent):
+        score -= cst * 100
+
+        for i in range(1, boardSize - 1):
+            if boardArray[i][0] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[0][i] == oponent:
+                score -= cst * 5
+            else:
+                break
             
-    elif (boardArray[0][0] != board._EMPTY):
-        score -= cst * 1000
+
 
 
 
@@ -95,8 +110,22 @@ def heuristic_angle(board, color, cst=50):
             else:
                 break
 
-    elif (boardArray[0][0] != board._EMPTY):
-        score -= cst * 1000
+    elif (boardArray[0][boardSize - 1] == oponent):
+        score -= cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[0][i] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[i][boardSize - 1] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+    
 
 
 
@@ -114,9 +143,23 @@ def heuristic_angle(board, color, cst=50):
                 score += cst * 5
             else:
                 break
+
+    elif (boardArray[boardSize - 1][boardSize - 1] == oponent):
+        score -= cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[board - 1][i] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][board - 1] == oponent:
+                score -= cst * 5
+            else:
+                break
         
-    elif (boardArray[0][0] != board._EMPTY):
-        score -= cst * 1000
+    
 
 
     if (boardArray[boardSize - 1][0] == color):
@@ -134,8 +177,22 @@ def heuristic_angle(board, color, cst=50):
             else:
                 break
 
-    elif (boardArray[0][0] != board._EMPTY):
-        score -= cst * 1000
+    elif (boardArray[boardSize - 1][0] == oponent):
+        score -= cst * 100
+
+        for i in range(boardSize - 2, -1):
+            if boardArray[i][0] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+        for i in range(1, boardSize - 1):
+            if boardArray[boardSize - 1][i] == oponent:
+                score -= cst * 5
+            else:
+                break
+
+    
 
     # Take to much time
     # if board._nextPlayer != color:

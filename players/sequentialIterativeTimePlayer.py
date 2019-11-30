@@ -60,13 +60,7 @@ def heuristic_takeDomination(board, player):
         else:
             score -= score
 
-    (m, x, y) = board._last_move
 
-    if (x, y) in board.get_corner_coord():
-        return MAX_VALUE
-
-
-    # score *= (board.getCurrentDomination(player) - board.getInitialDomination(player))
 
     return score
 
@@ -260,7 +254,7 @@ class SequentialIterative(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_takeDomination,
+            self._MIDDLE:   heuristic_angle,
             self._END:      heuristic_takeAllPiece
         }
 
