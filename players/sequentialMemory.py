@@ -85,14 +85,14 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be updated dynamically
-MAX_TIME_MILLIS = 400 
+MAX_TIME_MILLIS = 300
 
 
-INITIAL_CREDIT = 40
+INITIAL_CREDIT = 30
 
-GOOD_MOVE_VALUE = 2
-MEDIUM_MOVE_VALUE = 15
-BAD_MOVE_VALUE = 35
+GOOD_MOVE_VALUE = 5
+MEDIUM_MOVE_VALUE = 10
+BAD_MOVE_VALUE = 20
 
 
 
@@ -113,7 +113,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
     # Initial search, initialize queue
     for i in moves:
-        board.push(moves[i])
+        board.push(i)
         currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, i, 1)
         board.pop()
 
@@ -121,16 +121,19 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
             best_move = (currentValue, i)
 
         # Maybe useless
-        if getEllapsedTime(startTime) < MAX_TIME_MILLIS:
+        if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
             return best_move
 
 
-    boardSave = board.encode()
+    boardSave = board.encode([], 0)
     # We are on ally side in the function. We are looking for max value
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
 
-        initialMove = board.decode(queue.popleft())
-        currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, 1)
+        (initialMove, depth) = board.decode(queue.popleft())
+        if board._nextPlayer == player:
+            currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
+        else:    
+            currentValue = MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
 
 
         if currentValue >= best_move[0]:
@@ -145,14 +148,15 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0:
-        queue.append(board.encode(initialMove))
+        queue.append(board.encode(initialMove, depth))
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        queue.append(board.encode())
+        queue.append(board.encode(initialMove, depth))
         return heuristic(board, player)
 
     if board.is_game_over():
+
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -175,7 +179,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     for move in board.legal_moves():
 
         board.push(move)
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, queue, initialMove, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -187,14 +191,15 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0:
-        queue.append(board.encode(initialMove))
+        queue.append(board.encode(initialMove, depth))
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        queue.append(board.encode())
+        queue.append(board.encode(initialMove, depth))
         return heuristic(board, player)
 
     if board.is_game_over():
+
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -219,7 +224,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     for move in board.legal_moves():
 
         board.push(move)
-        beta = min(beta, MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1))
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, queue, initialMove, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -279,7 +284,7 @@ class SequentialMemory(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Rob's algo seq"
+        return "Memory"
 
 
     def nextMove(self):
