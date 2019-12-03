@@ -32,25 +32,21 @@ class Board:
       self._last_move = 0
 
 
-    def encode(self, initialMove, depth):
+    def encode(self):
         return (
             self._nbBLACK,
             self._nbWHITE,
             self._nextPlayer,
             np.copy(self._board),
-            initialMove,
-            depth
         )
 
 
     def decode(self, datas):
         self._nbBLACK = datas[0]
         self._nbWHITE = datas[1]
-        self._nextPlayer = datas[2]
-        
+        self._nextPlayer = datas[2]        
         self._board = datas[3]
 
-        return (datas[4], datas[5])
 
 
     def reset(self):

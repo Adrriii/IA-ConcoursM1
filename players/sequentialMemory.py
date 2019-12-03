@@ -101,6 +101,15 @@ BAD_MOVE_VALUE = 20
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
 
+def insertSort(l, datas, value):
+    insertIndex = len(l)
+
+    for i in range(insertIndex):
+        if l[i][0] < value:
+            insertIndex = i
+            break
+
+    l.insert(insertIndex, (value, datas))
 
 def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
@@ -108,7 +117,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     moves = board.legal_moves()   
 
     best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE by default
-    queue = collections.deque()
+    queue = list()
 
 
     # Initial search, initialize queue
@@ -125,19 +134,23 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
             return best_move
 
 
-    boardSave = board.encode([], 0)
+    boardSave = board.encode()
     # We are on ally side in the function. We are looking for max value
-    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
+    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
+        while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
 
-        (initialMove, depth) = board.decode(queue.popleft())
-        if board._nextPlayer == player:
-            currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
-        else:    
-            currentValue = MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
+            (value, (boardData, initialMove, depth)) = queue.pop(0)
+            board.decode(boardData)
+
+            # TODO is it the good function to call ?
+            if board._nextPlayer == player:
+                currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
+            else:    
+                currentValue = MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
 
 
-        if currentValue >= best_move[0]:
-            best_move = (currentValue, initialMove)
+            if currentValue >= best_move[0]:
+                best_move = (currentValue, initialMove)
 
 
     board.decode(boardSave)
@@ -147,13 +160,12 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
-    if numberCredit < 0:
-        queue.append(board.encode(initialMove, depth))
-        return heuristic(board, player)
+    if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        value = heuristic(board, player)
+        insertSort(queue, (board.encode(), initialMove, depth), value)
 
-    if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        queue.append(board.encode(initialMove, depth))
-        return heuristic(board, player)
+        return value
+
 
     if board.is_game_over():
 
@@ -190,13 +202,11 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
-    if numberCredit < 0:
-        queue.append(board.encode(initialMove, depth))
-        return heuristic(board, player)
+    if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        value = heuristic(board, player)
+        insertSort(queue, (board.encode(), initialMove, depth), value)
 
-    if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        queue.append(board.encode(initialMove, depth))
-        return heuristic(board, player)
+        return value
 
     if board.is_game_over():
 
@@ -303,7 +313,7 @@ class SequentialMemory(ImplementedPlayer):
         self._board.setInitialDomination()
 
         startTime = getTimeMillis()
-        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._board._nextPlayer)
+        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
 
         self._board.push(value[1])
         (_,x,y) = value[1]
