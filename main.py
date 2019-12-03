@@ -1,4 +1,5 @@
 import graphicalGame
+import globalGame
 import myPlayer
 from players import *
 import time
@@ -6,16 +7,19 @@ import time
 def vsRandom():
     return graphicalGame.GraphicalGame().play(myPlayer.myPlayer(),randomPlayer())
 
-def compare(player1,player2,rounds):
+def compare(player1,player2,rounds,graphical=False):
     score = 0
 
     for r in range(0,rounds):
-        score += graphicalGame.GraphicalGame().play(player1(),player2(),True)
+        if(graphical):
+            score += graphicalGame.GraphicalGame().play(player1(),player2(),True) 
+        else:
+            score += globalGame.Game().play(player1(),player2(),True) 
 
-    print(player1().getPlayerName() + " vs " + player2().getPlayerName() + " -> " +  str(score / rounds))
+    print(player1().getPlayerName() + " (black) vs " + player2().getPlayerName() + " (white) -> " +  str(((score/3) / rounds)*100) + "%")
 
 # compare(MetaPlayer, human, 10)
-compare(SequentialIterative, SequentialHeuristic, 5)
+compare(SequentialIterative, SequentialHeuristic, 50, False)
 # compare(MetaPlayer, randomPlayer, 5)
 # compare(MetaPlayer, TestPlayer, 5)
 
