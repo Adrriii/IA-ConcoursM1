@@ -10,7 +10,7 @@ from random import randint, choice
 
 import copy
 import time
-
+import collections
 
 # Number of empty slots on the board to switching in EndGame mode
 ENDGAME = 9
@@ -105,58 +105,51 @@ MIN_VALUE = -MAX_VALUE
 def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
 
-    moves = board.legal_moves()
+    moves = board.legal_moves()   
 
-    indexes = [i for i in range(len(moves))]    
-    
-    # Will contain result (moveIndex, heuristicValue, move)
-    resultList = list()
+    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE by default
+    queue = collections.deque()
 
-    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE
 
+    # Initial search, initialize queue
+    for i in moves:
+        board.push(moves[i])
+        currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, i, 1)
+        board.pop()
+
+        if currentValue >= best_move[0]:
+            best_move = (currentValue, i)
+
+        # Maybe useless
+        if getEllapsedTime(startTime) < MAX_TIME_MILLIS:
+            return best_move
+
+
+    boardSave = board.encode()
     # We are on ally side in the function. We are looking for max value
-    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
+    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
 
-        for i in indexes:
+        initialMove = board.decode(queue.popleft())
+        currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, 1)
 
-            board.push(moves[i])
-            currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 1)
-            board.pop()
 
-            ################################################
-            # On insere les valeurs dans l'ordre croissant
+        if currentValue >= best_move[0]:
+            best_move = (currentValue, initialMove)
 
-            insertIndex = len(resultList)
 
-            for j in range(insertIndex):
-                if resultList[j][1] < currentValue:
-                    insertIndex = j
-                    break
+    board.decode(boardSave)
 
-            resultList.insert(insertIndex, (i, currentValue, moves[i]))
-
-        ###########################
-        # Permutation des indexes
-
-        for i in range(len(resultList)):
-            indexes[i] = resultList[i][0]
-
-        if resultList[0][1] >= best_move[0]:
-            best_move = (resultList[0][1], resultList[0][2])
-
-        resultList = list()
-        currentCredit += 10
-
-    # Return the best value, in enemy side is the min Value
     return best_move
 
 
 
-def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0:
+        queue.append(board.encode(initialMove))
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        queue.append(board.encode())
         return heuristic(board, player)
 
     if board.is_game_over():
@@ -192,11 +185,13 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
 
 
 
-def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
+def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0:
+        queue.append(board.encode(initialMove))
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        queue.append(board.encode())
         return heuristic(board, player)
 
     if board.is_game_over():

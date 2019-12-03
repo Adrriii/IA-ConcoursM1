@@ -32,12 +32,13 @@ class Board:
       self._last_move = 0
 
 
-    def encode(self):
+    def encode(self, initialMove):
         return (
             self._nbBLACK,
             self._nbWHITE,
             self._nextPlayer,
-            np.asarray(self._board, dtype='uint8')
+            np.copy(self._board),
+            initialMove
         )
 
 
@@ -46,7 +47,9 @@ class Board:
         self._nbWHITE = datas[1]
         self._nextPlayer = datas[2]
         
-        self._board = datas[3].tolist()
+        self._board = datas[3]
+
+        return datas[4]
 
 
     def reset(self):
