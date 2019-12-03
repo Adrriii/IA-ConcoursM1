@@ -84,7 +84,7 @@ def heuristic_takeVictory(board, player):
 
 
 
-# Maximum time for each move. Has to be update dynamically
+# Maximum time for each move. Has to be updated dynamically
 MAX_TIME_MILLIS = 5000
 
 
@@ -112,9 +112,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     # Will contain result (moveIndex, heuristicValue, move)
     resultList = list()
 
-    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Enemy side, so badest value is MAX_VALUE
+    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE
 
-    # We are on enemy side in the function. We are looking for min value
+    # We are on ally side in the function. We are looking for max value
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
 
         for i in indexes:
@@ -124,11 +124,11 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
             board.pop()
 
             ################################################
-            # On insert les valeurs dans l'ordre croissant
+            # On insere les valeurs dans l'ordre croissant
 
             insertIndex = len(resultList)
 
-            for j in range(len(resultList)):
+            for j in range(insertIndex):
                 if resultList[j][1] < currentValue:
                     insertIndex = j
                     break
@@ -185,7 +185,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
     for move in board.legal_moves():
 
         board.push(move)
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -208,10 +208,10 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
         print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
-            return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
+            return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
 
         if player is board._WHITE:
-            return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
+            return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE if nbBlack > nbWhite else 0
 
 
     # Decrement numberCredit !
@@ -230,7 +230,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
     for move in board.legal_moves():
 
         board.push(move)
-        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth + 1))
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1))
         board.pop()
 
         if alpha >= beta:

@@ -209,7 +209,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
         else:
             creditForNext = numberCredit - GOOD_MOVE_VALUE
 
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, creditForNext, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -255,7 +255,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
         else:
             creditForNext = numberCredit - GOOD_MOVE_VALUE
 
-        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, creditForNext, depth + 1))
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, creditForNext, depth + 1))
         board.pop()
 
         if alpha >= beta:
