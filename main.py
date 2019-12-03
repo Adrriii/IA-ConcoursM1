@@ -19,7 +19,7 @@ def compare(player1,player2,rounds,graphical=False):
     print(player1().getPlayerName() + " (black) vs " + player2().getPlayerName() + " (white) -> " +  str(((score/3) / rounds)*100) + "%")
 
 # compare(MetaPlayer, human, 10)
-compare(SequentialIterative, SequentialHeuristic, 50, False)
+compare(SequentialIterative, SequentialMemory, 5, True)
 # compare(MetaPlayer, randomPlayer, 5)
 # compare(MetaPlayer, TestPlayer, 5)
 

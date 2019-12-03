@@ -6,6 +6,8 @@
 
     '''
 
+import numpy as np
+
 class Board:
     _BLACK = 1
     _WHITE = 2
@@ -17,9 +19,8 @@ class Board:
       self._nbBLACK = 2
       self._nextPlayer = self._BLACK
       self._boardsize = boardsize
-      self._board = []
-      for x in range(self._boardsize):
-          self._board.append([self._EMPTY]* self._boardsize)
+      self._board = np.zeros((self._boardsize, self._boardsize), dtype='uint32')
+      
       _middle = int(self._boardsize / 2)
       self._board[_middle-1][_middle-1] = self._BLACK 
       self._board[_middle-1][_middle] = self._WHITE
@@ -29,6 +30,24 @@ class Board:
       self._stack= []
       self._successivePass = 0
       self._last_move = 0
+
+
+    def encode(self):
+        return (
+            self._nbBLACK,
+            self._nbWHITE,
+            self._nextPlayer,
+            np.asarray(self._board, dtype='uint8')
+        )
+
+
+    def decode(self, datas):
+        self._nbBLACK = datas[0]
+        self._nbWHITE = datas[1]
+        self._nextPlayer = datas[2]
+        
+        self._board = datas[3].tolist()
+
 
     def reset(self):
         self.__init__()

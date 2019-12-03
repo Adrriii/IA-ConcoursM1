@@ -85,7 +85,7 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be updated dynamically
-MAX_TIME_MILLIS = 100
+MAX_TIME_MILLIS = 400 
 
 
 INITIAL_CREDIT = 40

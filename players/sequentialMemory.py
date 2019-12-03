@@ -85,7 +85,7 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be updated dynamically
-MAX_TIME_MILLIS = 100
+MAX_TIME_MILLIS = 400 
 
 
 INITIAL_CREDIT = 40
@@ -233,7 +233,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
     return beta
 
 
-class SequentialHeuristic(ImplementedPlayer):
+class SequentialMemory(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -248,7 +248,7 @@ class SequentialHeuristic(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_takeDomination,
+            self._MIDDLE:   heuristic_angle,
             self._END:      heuristic_takeAllPiece
         }
 
@@ -284,7 +284,7 @@ class SequentialHeuristic(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Heuristic"
+        return "Rob's algo seq"
 
 
     def nextMove(self):
