@@ -77,7 +77,7 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be update dynamically
-MAX_TIME_MILLIS = 5000
+MAX_TIME_MILLIS = 500
 
 INITIAL_CREDIT = 40
 
@@ -133,7 +133,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     # Will contain result (moveIndex, heuristicValue)
     resultList = list()
 
-    best_move = MAX_VALUE # Enemy side, so badest value is MAX_VALUE
+    best_move = MAX_VALUE - 1 # Enemy side, so badest value is MAX_VALUE
 
     # We are on enemy side in the function. We are looking for min value
     while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
@@ -162,7 +162,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
         for i in range(len(resultList)):
             indexes[i] = resultList[i][0]
 
-        if resultList[0][1] < best_move:
+        if resultList[0][1] <= best_move:
             best_move = resultList[0][1]
 
         resultList = list()
@@ -175,15 +175,12 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if board.is_game_over():
-        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -221,15 +218,12 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        print("Depth -> ", depth)
         return heuristic(board, player)
 
     if board.is_game_over():
-        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -297,12 +291,10 @@ class MetaPlayer(ImplementedPlayer):
                 for j in range(1, self._board.get_board_size() - 1):
 
                     if boardArray[i][j] != self._board._EMPTY:
-                        print("Switch state to middle !")
                         self.state = self._MIDDLE
                         return
 
                     if boardArray[j][i] != self._board._EMPTY:
-                        print("Switch state to middle !")
                         self.state = self._MIDDLE
                         return
 
@@ -311,7 +303,6 @@ class MetaPlayer(ImplementedPlayer):
             nbPieces = self._board.get_total_pieces()
 
             if nbPieces >= self._board.get_board_size()**2 - ENDGAME:
-                print("switch state to end !")
                 self.state = self._END
                 return
 
@@ -380,8 +371,6 @@ class MetaPlayer(ImplementedPlayer):
         self._board.push(m)
         (c,x,y) = m
 
-        print("Value -> ", best)
-        print("Ellapsed time for this move in millis -> ", getEllapsedTime(startTime))
 
         return (x,y)
         

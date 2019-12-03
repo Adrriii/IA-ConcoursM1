@@ -6,3 +6,4 @@ from .testPlayer import TestPlayer
 from .NegaBetaCredit import NegaBetaCredit
 from .testMetaPlayer import MetaPlayer
 from.sequentialIterativeTimePlayer import SequentialIterative
+from .iterativeHeuristic import SequentialHeuristic

@@ -233,7 +233,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
     return beta
 
 
-class SequentialIterative(ImplementedPlayer):
+class SequentialHeuristic(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -248,7 +248,7 @@ class SequentialIterative(ImplementedPlayer):
 
         self.heuristic_dict = {
             self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_angle,
+            self._MIDDLE:   heuristic_takeDomination,
             self._END:      heuristic_takeAllPiece
         }
 
@@ -284,7 +284,7 @@ class SequentialIterative(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Rob's algo seq"
+        return "Heuristic"
 
 
     def nextMove(self):
