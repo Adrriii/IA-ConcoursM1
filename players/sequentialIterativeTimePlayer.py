@@ -85,7 +85,7 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be updated dynamically
-MAX_TIME_MILLIS = 300
+MAX_TIME_MILLIS = 1000
 
 
 INITIAL_CREDIT = 40
@@ -120,8 +120,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
         for i in indexes:
 
             board.push(moves[i])
-            currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, 1)
+            currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, 1)
             board.pop()
+
 
             ################################################
             # On insere les valeurs dans l'ordre croissant
@@ -154,12 +155,15 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
+        print("Seq depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
         return heuristic(board, player)
 
     if board.is_game_over():
+        print("Seq depth GO -> ", depth)
+
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -182,7 +186,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
     for move in board.legal_moves():
 
         board.push(move)
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -194,12 +198,15 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
+        print("Seq depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
         return heuristic(board, player)
 
     if board.is_game_over():
+        print("Seq depth GO -> ", depth)
+
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -307,7 +314,6 @@ class SequentialIterative(ImplementedPlayer):
 
         self._board.push(value[1])
         (_,x,y) = value[1]
-
 
         return (x,y)
         

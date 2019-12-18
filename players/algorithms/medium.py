@@ -52,150 +52,126 @@ def heuristic2(b,player):
             
     return score
 
-def heuristic_angle(board, color, cst=50):
+def heuristic_angle(board, player, cst=50):
     boardSize = board.get_board_size()
     boardArray = board.get_board()
 
-    (nbwhites, nbblacks) = board.get_nb_pieces()
-    score = (nbblacks/(nbwhites + nbblacks)) * 100 if color == board._BLACK else (nbwhites/(nbblacks + nbwhites)) * 100
+    score = board.getCurrentDomination(player) * 1000
 
-    oponent = board._BLACK if color is board._WHITE else board._WHITE
+    oponent = board._BLACK if player is board._WHITE else board._WHITE
 
-    if (boardArray[0][0] == color):
+    if (boardArray[0][0] == player):
         score += cst * 100
-
-        for i in range(1, boardSize - 1):
-            if boardArray[i][0] == color:
-                score += cst * 5
-            else:
-                break
-
-        for i in range(1, boardSize - 1):
-            if boardArray[0][i] == color:
-                score += cst * 5
-            else:
-                break
 
     elif (boardArray[0][0] == oponent):
         score -= cst * 100
 
-        for i in range(1, boardSize - 1):
-            if boardArray[i][0] == oponent:
-                score -= cst * 5
-            else:
-                break
+    for i in range(1, boardSize - 1):
+        if boardArray[i][0] == player:
+            score += cst * 5
 
-        for i in range(1, boardSize - 1):
-            if boardArray[0][i] == oponent:
-                score -= cst * 5
-            else:
-                break
-            
+    for i in range(1, boardSize - 1):
+        if boardArray[0][i] == player:
+            score += cst * 5
+
+    for i in range(1, boardSize - 1):
+        if boardArray[i][0] == oponent:
+            score -= cst * 5
+
+    for i in range(1, boardSize - 1):
+        if boardArray[0][i] == oponent:
+            score -= cst * 5
 
 
 
 
-    if (boardArray[0][boardSize - 1] == color):
+
+    if (boardArray[0][boardSize - 1] == player):
         score += cst * 100
-
-        for i in range(boardSize - 2, -1):
-            if boardArray[0][i] == color:
-                score += cst * 5
-            else:
-                break
-
-        for i in range(1, boardSize - 1):
-            if boardArray[i][boardSize - 1] == color:
-                score += cst * 5
-            else:
-                break
 
     elif (boardArray[0][boardSize - 1] == oponent):
         score -= cst * 100
 
-        for i in range(boardSize - 2, -1):
-            if boardArray[0][i] == oponent:
-                score -= cst * 5
-            else:
-                break
+    for i in range(boardSize - 2, -1):
+        if boardArray[0][i] == player:
+            score += cst * 5
 
-        for i in range(1, boardSize - 1):
-            if boardArray[i][boardSize - 1] == oponent:
-                score -= cst * 5
-            else:
-                break
+    for i in range(1, boardSize - 1):
+        if boardArray[i][boardSize - 1] == player:
+            score += cst * 5
+
+    for i in range(boardSize - 2, -1):
+        if boardArray[0][i] == oponent:
+            score -= cst * 5
+
+
+    for i in range(1, boardSize - 1):
+        if boardArray[i][boardSize - 1] == oponent:
+            score -= cst * 5
+
 
     
 
 
 
-    if (boardArray[boardSize - 1][boardSize - 1] == color):
+    if (boardArray[boardSize - 1][boardSize - 1] == player):
         score += cst * 100
-
-        for i in range(boardSize - 2, -1):
-            if boardArray[board - 1][i] == color:
-                score += cst * 5
-            else:
-                break
-
-        for i in range(boardSize - 2, -1):
-            if boardArray[i][board - 1] == color:
-                score += cst * 5
-            else:
-                break
 
     elif (boardArray[boardSize - 1][boardSize - 1] == oponent):
         score -= cst * 100
 
-        for i in range(boardSize - 2, -1):
-            if boardArray[board - 1][i] == oponent:
-                score -= cst * 5
-            else:
-                break
+    for i in range(boardSize - 2, -1):
+        if boardArray[board - 1][i] == player:
+            score += cst * 5
 
-        for i in range(boardSize - 2, -1):
-            if boardArray[i][board - 1] == oponent:
-                score -= cst * 5
-            else:
-                break
+
+    for i in range(boardSize - 2, -1):
+        if boardArray[i][board - 1] == player:
+            score += cst * 5
+
+
+
+    for i in range(boardSize - 2, -1):
+        if boardArray[board - 1][i] == oponent:
+            score -= cst * 5
+
+
+    for i in range(boardSize - 2, -1):
+        if boardArray[i][board - 1] == oponent:
+            score -= cst * 5
+
         
     
-
-
-    if (boardArray[boardSize - 1][0] == color):
+    if (boardArray[boardSize - 1][0] == player):
         score += cst * 100
-
-        for i in range(boardSize - 2, -1):
-            if boardArray[i][0] == color:
-                score += cst * 5
-            else:
-                break
-
-        for i in range(1, boardSize - 1):
-            if boardArray[boardSize - 1][i] == color:
-                score += cst * 5
-            else:
-                break
 
     elif (boardArray[boardSize - 1][0] == oponent):
         score -= cst * 100
+    for i in range(boardSize - 2, -1):
+        if boardArray[i][0] == player:
+            score += cst * 5
 
-        for i in range(boardSize - 2, -1):
-            if boardArray[i][0] == oponent:
-                score -= cst * 5
-            else:
-                break
 
-        for i in range(1, boardSize - 1):
-            if boardArray[boardSize - 1][i] == oponent:
-                score -= cst * 5
-            else:
-                break
+    for i in range(1, boardSize - 1):
+        if boardArray[boardSize - 1][i] == player:
+            score += cst * 5
+
+
+
+    for i in range(boardSize - 2, -1):
+        if boardArray[i][0] == oponent:
+            score -= cst * 5
+
+
+    for i in range(1, boardSize - 1):
+        if boardArray[boardSize - 1][i] == oponent:
+            score -= cst * 5
+
 
     
 
     # Take to much time
-    # if board._nextPlayer != color:
+    # if board._nextPlayer != player:
     #     score -= len(board.legal_moves())
     # else:
     #     score += len(board.legal_moves())
@@ -263,9 +239,9 @@ def NegaAlphaBetaCredit(b, heuristic, alpha, beta, player, credit, current_val, 
     return alpha
 
 
-def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, color):
+def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, player):
     if depth == 0 or board.is_game_over():
-        return heuristic(board, color)
+        return heuristic(board, player)
 
     for move in board.legal_moves():
 

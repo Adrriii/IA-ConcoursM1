@@ -85,7 +85,7 @@ def heuristic_takeVictory(board, player):
 
 
 # Maximum time for each move. Has to be updated dynamically
-MAX_TIME_MILLIS = 300
+MAX_TIME_MILLIS = 5000
 
 
 INITIAL_CREDIT = 30
@@ -123,7 +123,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     # Initial search, initialize queue
     for i in moves:
         board.push(i)
-        currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, i, 1)
+        currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, i, 1)
         board.pop()
 
         if currentValue >= best_move[0]:
@@ -144,9 +144,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
             # TODO is it the good function to call ?
             if board._nextPlayer == player:
-                currentValue = MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
+                currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
             else:    
-                currentValue = MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, currentCredit, queue, initialMove, depth)
+                currentValue = MaxValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
 
 
             if currentValue >= best_move[0]:
@@ -191,7 +191,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     for move in board.legal_moves():
 
         board.push(move)
-        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, queue, initialMove, depth + 1))
+        alpha = max(alpha, MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth + 1))
         board.pop()
 
         if alpha >= beta:
@@ -203,6 +203,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -234,7 +235,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     for move in board.legal_moves():
 
         board.push(move)
-        beta = min(beta, MaxValue(board, alpha, beta, heuristic, board._nextPlayer, startTime, numberCredit, queue, initialMove, depth + 1))
+        beta = min(beta, MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth + 1))
         board.pop()
 
         if alpha >= beta:
