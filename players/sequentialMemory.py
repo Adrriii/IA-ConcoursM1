@@ -154,6 +154,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
             if currentValue >= best_move[0]:
                 best_move = (currentValue, initialMove)
+        
+        if (len(queue) == 0):
+            break
 
 
     board.decode(boardSave)
@@ -164,6 +167,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -171,7 +175,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
-
+        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -206,14 +210,14 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-
+        print("Depth -> ", depth)        
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
         return value
 
     if board.is_game_over():
-
+        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -328,6 +332,16 @@ class SequentialMemory(ImplementedPlayer):
             return (-1, -1)
 
         self.updateGameState()
+
+        if (self.state == self._BEGIN):
+            moves = [m for m in self._board.legal_moves()]
+            move = moves[randint(0,len(moves)-1)]
+            self._board.push(move)
+            (c,x,y) = move
+            self.timeCount += getEllapsedTime(startTime)
+
+            return (x,y)
+
         self._board.setInitialDomination()
 
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
