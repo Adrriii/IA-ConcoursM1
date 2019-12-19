@@ -23,7 +23,7 @@ def compare(player1,player2,rounds,graphical=False):
 
 # compare(MetaPlayer, human, 10)
 # cProfile.run('compare(SequentialMemory, randomPlayer, 1, False)')
-compare(SequentialMemory, randomPlayer, 20, True)
+compare(SequentialMemory, randomPlayer, 5, True)
 # compare(MetaPlayer, randomPlayer, 5)
 # compare(MetaPlayer, TestPlayer, 5)
 

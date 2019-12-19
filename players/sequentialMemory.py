@@ -267,6 +267,8 @@ class SequentialMemory(ImplementedPlayer):
         }
 
         self.state = self._BEGIN
+        self.timeCount = 0
+        self.timeMax = 300 * 1000 - 200 # Marge
 
 
 
@@ -302,7 +304,18 @@ class SequentialMemory(ImplementedPlayer):
 
 
     def nextMove(self):
+        startTime = getTimeMillis()
+        
+        global MAX_TIME_MILLIS
+
+        (n1, n2) = self._board.get_nb_pieces()
+        # - 1 marge
+        MAX_TIME_MILLIS = (self.timeMax - self.timeCount)//((self._board.get_board_size()**2 - (n1 + n2 - 1))//2)
+
+        print("Time for this move -> ", MAX_TIME_MILLIS)
+
         if self._board.is_game_over():
+            self.timeCount += getEllapsedTime(startTime)
             return (-1, -1)
 
         possibleMoves = self._board.legal_moves()
@@ -310,19 +323,20 @@ class SequentialMemory(ImplementedPlayer):
 
         if numberPossibleMoves <= 0:
             self._board.push([self._mycolor, -1, -1])
+            self.timeCount += getEllapsedTime(startTime)
 
             return (-1, -1)
 
         self.updateGameState()
         self._board.setInitialDomination()
 
-        startTime = getTimeMillis()
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
 
         print(value)
         self._board.push(value[1])
         (_,x,y) = value[1]
 
+        self.timeCount += getEllapsedTime(startTime)
 
         return (x,y)
         
