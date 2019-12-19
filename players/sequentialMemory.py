@@ -114,7 +114,10 @@ def insertSort(l, datas, value):
 def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
 
-    moves = board.legal_moves()   
+    moves = board.legal_moves()
+
+    if len(moves) == 1:
+        return moves[0]
 
     best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE by default
     queue = list()

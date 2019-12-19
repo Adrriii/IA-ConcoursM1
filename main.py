@@ -3,6 +3,7 @@ import globalGame
 import myPlayer
 from players import *
 import time
+import cProfile
 
 def vsRandom():
     return graphicalGame.GraphicalGame().play(myPlayer.myPlayer(),randomPlayer())
@@ -21,7 +22,8 @@ def compare(player1,player2,rounds,graphical=False):
     print(player1().getPlayerName() + " (black) vs " + player2().getPlayerName() + " (white) -> " +  str(((score/3) / rounds)*100) + "%")
 
 # compare(MetaPlayer, human, 10)
-compare(SequentialMemory, randomPlayer, 40, True)
+# cProfile.run('compare(SequentialMemory, randomPlayer, 1, False)')
+compare(SequentialMemory, randomPlayer, 20, True)
 # compare(MetaPlayer, randomPlayer, 5)
 # compare(MetaPlayer, TestPlayer, 5)
 

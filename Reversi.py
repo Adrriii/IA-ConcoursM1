@@ -229,6 +229,9 @@ class Board:
     def at_least_one_legal_move(self, player):
         for x in range(0,self._boardsize):
             for y in range(0,self._boardsize):
+                if (self._board[x][y] != self._EMPTY):
+                    continue
+
                 if self.lazyTest_ValidMove(player, x, y):
                    return True
         return False
