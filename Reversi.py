@@ -242,6 +242,9 @@ class Board:
         moves = []
         for x in range(0,self._boardsize):
             for y in range(0,self._boardsize):
+                if (self._board[x][y] != self._EMPTY):
+                    continue
+                
                 if self.lazyTest_ValidMove(self._nextPlayer, x, y):
                     moves.append([self._nextPlayer,x,y])
         if len(moves) is 0:

@@ -117,7 +117,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     moves = board.legal_moves()
 
     if len(moves) == 1:
-        return moves[0]
+        return (0, moves[0])
 
     best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE by default
     queue = list()
@@ -319,6 +319,7 @@ class SequentialMemory(ImplementedPlayer):
         startTime = getTimeMillis()
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
 
+        print(value)
         self._board.push(value[1])
         (_,x,y) = value[1]
 
