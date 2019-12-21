@@ -34,6 +34,7 @@ BAD_MOVE_VALUE = 20
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
 
+GAME_END = 25
 
 def insertSort(l, datas, value):
     insertIndex = len(l)
@@ -96,6 +97,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        # print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -103,6 +105,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
+        # print("Depth GO -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -137,12 +140,14 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        # print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
         return value
 
     if board.is_game_over():
+        # print("Depth GO -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -182,7 +187,7 @@ class SequentialMemory(ImplementedPlayer):
 
         self._BEGIN     = 0
         self._MIDDLE    = 1
-
+        self._END       = 3
 
         self.state = self._BEGIN
         self.timeCount = 0
@@ -200,12 +205,21 @@ class SequentialMemory(ImplementedPlayer):
                 for j in range(1, self._board.get_board_size() - 1):
 
                     if boardArray[i][j] != self._board._EMPTY:
+                        print("Switching to middle !")
                         self.state = self._MIDDLE
                         return
 
                     if boardArray[j][i] != self._board._EMPTY:
+                        print("Switching to middle !")
                         self.state = self._MIDDLE
                         return
+
+        elif self.state is self._MIDDLE:
+            print("Testing end {} {}".format(self._board.get_board_size()**2 - self._board.get_total_pieces(), GAME_END))
+            if self._board.get_board_size()**2 - self._board.get_total_pieces() <= GAME_END:
+                print("switching to end !")
+                self.state = self._END
+                return
 
     
     def getPlayerName(self):
@@ -219,7 +233,6 @@ class SequentialMemory(ImplementedPlayer):
         (n1, n2) = self._board.get_nb_pieces()
 
         # -1 for current piece
-        MAX_TIME_MILLIS = (self.timeMax - self.timeCount)//((self._board.get_board_size()**2 - (n1 + n2 - 1))//2)
 
 
         possibleMoves = self._board.legal_moves()
@@ -232,8 +245,8 @@ class SequentialMemory(ImplementedPlayer):
             return (-1, -1)
 
 
+        self.updateGameState()
         if (self.state == self._BEGIN):
-            self.updateGameState()
             move = possibleMoves[randint(0, len(possibleMoves) - 1)]
             self._board.push(move)
             (c,x,y) = move
@@ -243,7 +256,19 @@ class SequentialMemory(ImplementedPlayer):
 
         self._board.setInitialDomination()
 
+        MAX_TIME_MILLIS = (self.timeMax - self.timeCount)//((self._board.get_board_size()**2 - (n1 + n2 - 1))//2)
+
+        #Saving time for end
+        if self.state is self._MIDDLE:
+            print("Middle malus -> ", MAX_TIME_MILLIS//3)
+            MAX_TIME_MILLIS -= MAX_TIME_MILLIS//3
+        elif self.state is self._END:
+            print("End bonus -> ", (self.timeMax - self.timeCount)//5)
+            MAX_TIME_MILLIS += (self.timeMax - self.timeCount - MAX_TIME_MILLIS)//5
+
+        print("Time to spend -> ", MAX_TIME_MILLIS)
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
+
 
         self._board.push(value[1])
         (_,x,y) = value[1]
