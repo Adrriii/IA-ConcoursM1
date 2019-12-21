@@ -12,14 +12,6 @@ import copy
 import time
 import collections
 
-# Number of empty slots on the board to switching in EndGame mode
-ENDGAME = 9
-
-
-
-############################################
-#       Time Managment
-############################################
 
 def getTimeMillis():
     return int(round(time.time() * 1000))
@@ -28,65 +20,9 @@ def getTimeMillis():
 def getEllapsedTime(initialTime):
     return getTimeMillis() - initialTime
 
- 
 
-############################################
-#       Heuristics
-############################################
-
-def heuristic_takeAllPiece(board, player):
-    """ Simple heuristic that just want to take all pieces """
-
-    if player is board._WHITE:
-        return board._nbWHITE - board._nbBLACK
-    
-    return board._nbBLACK - board._nbWHITE
-
-
-def heuristic_takeDomination(board, player):
-    """ Heuristic that try to take corner, with an advantage if it takes border """
-
-    boardArray = board.get_board()
-    boardSize = board.get_board_size()
-
-    otherPlayer = board._WHITE if player is board._BLACK else board._BLACK
-
-    score = (board.getCurrentDomination(player) - board.getInitialDomination(player)) * 100
-    cst = 30
-
-    for corner in board.get_corner():
-        if corner is player:
-            score += score
-        else:
-            score -= score
-
-
-
-    return score
-
-
-def heuristic_takeVictory(board, player):
-    """ Heuristic for victory """
-    (nbWhite, nbBlack) = board.get_nb_pieces()
-
-    if (board.is_game_over()):
-        if player is board._BLACK:
-            if nbBlack > nbWhite:
-                return MAX_VALUE
-            return MIN_VALUE
-        
-        if player is board._WHITE:
-            if nbWhite > nbWhite:
-                return MAX_VALUE
-            return MIN_VALUE
-
-    return board.getCurrentDomination(player)
-
-
-
-# Maximum time for each move. Has to be updated dynamically
+# Maximum time for each move.
 MAX_TIME_MILLIS = 5000
-
 
 INITIAL_CREDIT = 30
 
@@ -95,11 +31,9 @@ MEDIUM_MOVE_VALUE = 10
 BAD_MOVE_VALUE = 20
 
 
-
-
-# Must be higher than any heuristic resutl
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
+
 
 def insertSort(l, datas, value):
     insertIndex = len(l)
@@ -111,6 +45,7 @@ def insertSort(l, datas, value):
 
     l.insert(insertIndex, (value, datas))
 
+
 def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     currentCredit = INITIAL_CREDIT
 
@@ -119,7 +54,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     if len(moves) == 1:
         return (0, moves[0])
 
-    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1]) # Ally side, so best value is MIN_VALUE by default
+    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1])
     queue = list()
 
 
@@ -138,27 +73,21 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 
     boardSave = board.encode()
-    # We are on ally side in the function. We are looking for max value
-    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS):
-        while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
 
-            (value, (boardData, initialMove, depth)) = queue.pop(0)
-            board.decode(boardData)
+    while (getEllapsedTime(startTime) < MAX_TIME_MILLIS and len(queue) > 0):
 
-            # TODO is it the good function to call ?
-            if board._nextPlayer == player:
-                currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
-            else:    
-                currentValue = MaxValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
+        (value, (boardData, initialMove, depth)) = queue.pop(0)
+        board.decode(boardData)
+
+        if board._nextPlayer == player:
+            currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
+        else:    
+            currentValue = MaxValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, initialMove, depth)
 
 
-            if currentValue >= best_move[0]:
-                best_move = (currentValue, initialMove)
+        if currentValue >= best_move[0]:
+            best_move = (currentValue, initialMove)
         
-        if (len(queue) == 0):
-            break
-
-
     board.decode(boardSave)
 
     return best_move
@@ -167,7 +96,6 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -175,7 +103,6 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
-        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -210,14 +137,12 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
-        print("Depth -> ", depth)        
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
         return value
 
     if board.is_game_over():
-        print("Depth -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -226,8 +151,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE if nbBlack > nbWhite else 0
 
 
-    # Decrement numberCredit !
-    # Is it a good idea to use domination for this ?
+
     dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
 
     
@@ -258,17 +182,7 @@ class SequentialMemory(ImplementedPlayer):
 
         self._BEGIN     = 0
         self._MIDDLE    = 1
-        self._END       = 2
 
-        # À la base l'heuristique takeVictory était utilisée, mais dans le cas
-        # ou la victoire n'est pas évidente, retourne un coup aléatoire 
-        # parmis les coups à -1.... Commencer plus tôt endGame avec takeVitory ?
-
-        self.heuristic_dict = {
-            self._BEGIN:    heuristic_takeAllPiece,
-            self._MIDDLE:   heuristic_angle,
-            self._END:      heuristic_takeAllPiece
-        }
 
         self.state = self._BEGIN
         self.timeCount = 0
@@ -293,34 +207,20 @@ class SequentialMemory(ImplementedPlayer):
                         self.state = self._MIDDLE
                         return
 
-
-        elif self.state is self._MIDDLE:
-            nbPieces = self._board.get_total_pieces()
-
-            if nbPieces >= self._board.get_board_size()**2 - ENDGAME:
-                self.state = self._END
-                return
-
-
     
     def getPlayerName(self):
         return "Memory player"
 
 
     def nextMove(self):
-        startTime = getTimeMillis()
-        
         global MAX_TIME_MILLIS
+        startTime = getTimeMillis()
 
         (n1, n2) = self._board.get_nb_pieces()
-        # - 1 marge
+
+        # -1 for current piece
         MAX_TIME_MILLIS = (self.timeMax - self.timeCount)//((self._board.get_board_size()**2 - (n1 + n2 - 1))//2)
 
-        print("Time for this move -> ", MAX_TIME_MILLIS)
-
-        if self._board.is_game_over():
-            self.timeCount += getEllapsedTime(startTime)
-            return (-1, -1)
 
         possibleMoves = self._board.legal_moves()
         numberPossibleMoves = len(possibleMoves)
@@ -331,11 +231,10 @@ class SequentialMemory(ImplementedPlayer):
 
             return (-1, -1)
 
-        self.updateGameState()
 
         if (self.state == self._BEGIN):
-            moves = [m for m in self._board.legal_moves()]
-            move = moves[randint(0,len(moves)-1)]
+            self.updateGameState()
+            move = possibleMoves[randint(0, len(possibleMoves) - 1)]
             self._board.push(move)
             (c,x,y) = move
             self.timeCount += getEllapsedTime(startTime)
@@ -344,9 +243,8 @@ class SequentialMemory(ImplementedPlayer):
 
         self._board.setInitialDomination()
 
-        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, self.heuristic_dict[self.state], self._mycolor)
+        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
 
-        print(value)
         self._board.push(value[1])
         (_,x,y) = value[1]
 

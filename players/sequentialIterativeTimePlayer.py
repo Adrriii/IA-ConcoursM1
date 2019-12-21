@@ -155,14 +155,12 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        print("Seq depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
         return heuristic(board, player)
 
     if board.is_game_over():
-        print("Seq depth GO -> ", depth)
 
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
@@ -198,14 +196,12 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, dep
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, depth):
     if numberCredit < 0:
-        print("Seq depth -> ", depth)
         return heuristic(board, player)
 
     if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
         return heuristic(board, player)
 
     if board.is_game_over():
-        print("Seq depth GO -> ", depth)
 
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:

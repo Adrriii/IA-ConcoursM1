@@ -33,6 +33,7 @@ class MyBoard:
 
 
     def encode(self):
+        """ Return all informations needed for recreate the board """
         return (
             self._nbBLACK,
             self._nbWHITE,
@@ -42,6 +43,7 @@ class MyBoard:
 
 
     def decode(self, datas):
+        """ Restore the board to a given state """
         self._nbBLACK = datas[0]
         self._nbWHITE = datas[1]
         self._nextPlayer = datas[2]        
@@ -52,15 +54,15 @@ class MyBoard:
     def reset(self):
         self.__init__()
 
-    # Donne la taille du plateau 
+
     def get_board_size(self):
         return self._boardsize
 
-    # Retourne le tableaux contenant les cases
     def get_board(self):
         return self._board
 
     def get_corner_coord(self):
+        """ Return all corners coord in a list """
         return [
             (0, 0),
             (self._boardsize - 1, 0),
@@ -68,14 +70,9 @@ class MyBoard:
             (0, self._boardsize - 1)
         ]
 
-    # Retourne la couleur des coins, depuis top-left, sens horaire
+
     def get_corner(self):
-        return [
-            self._board[0][0],
-            self._board[self._boardsize - 1][0],
-            self._board[self._boardsize - 1][self._boardsize - 1],
-            self._board[0][self._boardsize - 1]
-        ]
+        return [self._board[x][y] for (x, y) in self.get_corner_coord()]
 
     # Donne le nombre de pieces de blanc et noir sur le plateau
     # sous forme de tuple (blancs, noirs) 
@@ -242,6 +239,7 @@ class MyBoard:
         moves = []
         for x in range(0,self._boardsize):
             for y in range(0,self._boardsize):
+
                 if (self._board[x][y] != self._EMPTY):
                     continue
                 
@@ -291,6 +289,7 @@ class MyBoard:
 
     def setInitialDomination(self):
         self.initialDomination = [self.getCurrentDomination(self._BLACK), self.getCurrentDomination(self._WHITE)]
+
 
     def getInitialDomination(self, player):
         return self.initialDomination[0 if player is self._BLACK else 1]
