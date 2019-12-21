@@ -3,7 +3,7 @@
 import pygame
 from pygame.locals import *
 
-from Reversi import Board
+from Reversi_perso import MyBoard
 
 class Display():
     """ Display the game """
@@ -50,7 +50,7 @@ class Display():
 
     
     def setBoard(self, board_size):
-        self.board = Board(board_size)
+        self.board = MyBoard(board_size)
         self._BOARD_OFFSET = board_size
         self._BOARD_WIDTH = self._WIDTH - 2 * self._BOARD_OFFSET
         self.caseSize = self._BOARD_WIDTH // self._BOARD_OFFSET

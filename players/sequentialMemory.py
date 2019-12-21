@@ -304,7 +304,7 @@ class SequentialMemory(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Memory"
+        return "Memory player"
 
 
     def nextMove(self):

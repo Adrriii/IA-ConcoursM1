@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 ''' Fichier de règles du Reversi pour le tournoi Masters Info 2019 en IA.
-    Certaines parties de ce code sont fortement inspirée de 
+    Certaines parties de ce code sont fortement inspirées de 
     https://inventwithpython.com/chapter15.html
 
     '''
 
-class Board:
+import numpy as np
+
+class MyBoard:
     _BLACK = 1
     _WHITE = 2
     _EMPTY = 0
@@ -17,9 +19,8 @@ class Board:
       self._nbBLACK = 2
       self._nextPlayer = self._BLACK
       self._boardsize = boardsize
-      self._board = []
-      for x in range(self._boardsize):
-          self._board.append([self._EMPTY]* self._boardsize)
+      self._board = np.zeros((self._boardsize, self._boardsize), dtype='uint32')
+      
       _middle = int(self._boardsize / 2)
       self._board[_middle-1][_middle-1] = self._BLACK 
       self._board[_middle-1][_middle] = self._WHITE
@@ -28,6 +29,25 @@ class Board:
       
       self._stack= []
       self._successivePass = 0
+      self._last_move = 0
+
+
+    def encode(self):
+        return (
+            self._nbBLACK,
+            self._nbWHITE,
+            self._nextPlayer,
+            np.copy(self._board),
+        )
+
+
+    def decode(self, datas):
+        self._nbBLACK = datas[0]
+        self._nbWHITE = datas[1]
+        self._nextPlayer = datas[2]        
+        self._board = datas[3]
+
+
 
     def reset(self):
         self.__init__()
@@ -36,11 +56,35 @@ class Board:
     def get_board_size(self):
         return self._boardsize
 
+    # Retourne le tableaux contenant les cases
+    def get_board(self):
+        return self._board
+
+    def get_corner_coord(self):
+        return [
+            (0, 0),
+            (self._boardsize - 1, 0),
+            (self._boardsize - 1, self._boardsize - 1),
+            (0, self._boardsize - 1)
+        ]
+
+    # Retourne la couleur des coins, depuis top-left, sens horaire
+    def get_corner(self):
+        return [
+            self._board[0][0],
+            self._board[self._boardsize - 1][0],
+            self._board[self._boardsize - 1][self._boardsize - 1],
+            self._board[0][self._boardsize - 1]
+        ]
+
     # Donne le nombre de pieces de blanc et noir sur le plateau
     # sous forme de tuple (blancs, noirs) 
     # Peut être utilisé si le jeu est terminé pour déterminer le vainqueur
     def get_nb_pieces(self):
       return (self._nbWHITE, self._nbBLACK)
+
+    def get_total_pieces(self):
+        return self._nbWHITE + self._nbBLACK
 
     # Vérifie si player a le droit de jouer en (x,y)
     def is_valid_move(self, player, x, y):
@@ -140,6 +184,7 @@ class Board:
         return True 
 
     def push(self, move):
+        self._last_move = move
         [player, x, y] = move
         assert player == self._nextPlayer
         if x==-1 and y==-1: # pass
@@ -184,6 +229,9 @@ class Board:
     def at_least_one_legal_move(self, player):
         for x in range(0,self._boardsize):
             for y in range(0,self._boardsize):
+                if (self._board[x][y] != self._EMPTY):
+                    continue
+
                 if self.lazyTest_ValidMove(player, x, y):
                    return True
         return False
@@ -194,6 +242,9 @@ class Board:
         moves = []
         for x in range(0,self._boardsize):
             for y in range(0,self._boardsize):
+                if (self._board[x][y] != self._EMPTY):
+                    continue
+                
                 if self.lazyTest_ValidMove(self._nextPlayer, x, y):
                     moves.append([self._nextPlayer,x,y])
         if len(moves) is 0:
@@ -229,4 +280,17 @@ class Board:
 
     __repr__ = __str__
 
+    def getCurrentDomination(self, player):
+        (nbWhite, nbBlack) = self.get_nb_pieces()
+        if player is self._BLACK:
+            currentDomination = nbBlack / (nbBlack + nbWhite)
+        else:
+            currentDomination = nbWhite / (nbBlack + nbWhite)
 
+        return currentDomination
+
+    def setInitialDomination(self):
+        self.initialDomination = [self.getCurrentDomination(self._BLACK), self.getCurrentDomination(self._WHITE)]
+
+    def getInitialDomination(self, player):
+        return self.initialDomination[0 if player is self._BLACK else 1]
