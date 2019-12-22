@@ -91,7 +91,8 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
         if currentValue >= best_move[0]:
             best_move = (currentValue, initialMove)
-        
+    
+    # Reset board
     board.decode(boardSave)
 
     return best_move
@@ -99,7 +100,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
+
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        # End, put the board state in the queue
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -107,7 +110,6 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
-        print("Depth game over -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -115,10 +117,8 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
         if player is board._WHITE:
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE
 
-    # Decrement numberCredit !
-    # Is it a good idea to use domination for this ?
-    dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
 
+    dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
     
     if dominationDiff < -0.1:
         numberCredit -= BAD_MOVE_VALUE
@@ -148,8 +148,6 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
         return value
 
     if board.is_game_over():
-        print("Depth game over -> ", depth)
-
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -158,10 +156,8 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
             return MAX_VALUE if nbBlack < nbWhite else MIN_VALUE if nbBlack > nbWhite else 0
 
 
-
     dominationDiff = board.getCurrentDomination(player) - board.getInitialDomination(player)
 
-    
     if dominationDiff < -0.1:
         numberCredit -= BAD_MOVE_VALUE
     elif dominationDiff < 0.2:
@@ -192,6 +188,7 @@ class Lumberjack(ImplementedPlayer):
         self._END       = 3
 
         self.state = self._BEGIN
+
         self.timeCount = 0
         self.timeMax = 300 * 1000 - 200 # Marge
 
@@ -199,6 +196,7 @@ class Lumberjack(ImplementedPlayer):
     def newGame(self, color, board_size = 10):
         super().newGame(color, board_size)
         self.bookStack = self._board._stack.copy()
+
 
     def updateGameState(self):
         """ Function that estimate when we are in the game """
@@ -228,6 +226,7 @@ class Lumberjack(ImplementedPlayer):
             return (-1, -1)
 
 
+        # Search in the book
         if (self.state == self._BEGIN):
             move = getBookMove(self.bookStack.copy())
 
@@ -238,6 +237,7 @@ class Lumberjack(ImplementedPlayer):
 
                 return (x,y)
             else:
+                # Can't use the book, switch to middle state
                 self.state = self._MIDDLE
         else:
             self.updateGameState()
@@ -250,10 +250,10 @@ class Lumberjack(ImplementedPlayer):
         #Saving time for end
         if self.state is self._MIDDLE:
             MAX_TIME_MILLIS -= MAX_TIME_MILLIS//3
+
         elif self.state is self._END:
             MAX_TIME_MILLIS += (self.timeMax - self.timeCount - MAX_TIME_MILLIS)//5
 
-        print("Time to spend -> ", MAX_TIME_MILLIS)
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
 
 
@@ -268,6 +268,7 @@ class Lumberjack(ImplementedPlayer):
     def endGame(self, color):
         """ Nothing to do """
         pass
+
 
     def playOpponentMove(self, x,y):
         super().playOpponentMove(x, y)

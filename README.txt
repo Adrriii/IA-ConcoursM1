@@ -3,6 +3,8 @@
 Adrien Boitelle
 Robin Navarro
 
+Le joueurs que nous utilisons est players/Lumberjack.py.
+
 Pour notre IA, nous avons utilisé l'algorithme alphaBeta. Au lieu d'utiliser un horizon fixe, nous utilisons un système de jetons.
 Pour une meilleure gestion du temps, nous faisons de l'iterative deepening. Mais au lieux de recalculer tous les coups déjà explorés,
 on enregistre l'état du jeu quand nous sommes à cours de jetons, pour pouvoir reprendre à cet endroit lors de la prochaine passe s'il 
