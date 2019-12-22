@@ -7,3 +7,4 @@ from .NegaBetaCredit import NegaBetaCredit
 from .testMetaPlayer import MetaPlayer
 from .sequentialIterativeTimePlayer import SequentialIterative
 from .sequentialMemory import SequentialMemory
+from .openingPlayer import OpeningPlayer

@@ -265,12 +265,14 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, player):
 def getBookMove(playedMoves):
     current = book
 
+    print(playedMoves)
+
     while True:
         nextMove = playedMoves.pop(0)
         nextStr = nextMove[0] + nextMove[1]
 
         if nextStr in current.keys():
-            current = current[nextStr]:
+            current = current[nextStr]
         else:
             return -1
 

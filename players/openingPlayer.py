@@ -97,6 +97,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
 
 def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        # print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
@@ -104,6 +105,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
+        # print("Depth GO -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -138,12 +140,14 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, queue, initialMove, depth):
     if numberCredit < 0 or getEllapsedTime(startTime) > MAX_TIME_MILLIS:
+        # print("Depth -> ", depth)
         value = heuristic(board, player)
         insertSort(queue, (board.encode(), initialMove, depth), value)
 
         return value
 
     if board.is_game_over():
+        #print("Depth GO -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -176,7 +180,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     return beta
 
 
-class SequentialMemory(ImplementedPlayer):
+class OpeningPlayer(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -190,32 +194,24 @@ class SequentialMemory(ImplementedPlayer):
         self.timeMax = 300 * 1000 - 200 # Marge
 
 
+    def newGame(self, color, board_size = 10):
+        super().newGame(color, board_size)
+        self.bookStack = self._board._stack.copy()
 
     def updateGameState(self):
         """ Function that estimate when we are in the game """
         boardArray = self._board.get_board()
-        
-        if self.state is self._BEGIN:
 
-            for i in [1, self._board.get_board_size() - 2]:
-                for j in range(1, self._board.get_board_size() - 1):
-
-                    if boardArray[i][j] != self._board._EMPTY:
-                        self.state = self._MIDDLE
-                        return
-
-                    if boardArray[j][i] != self._board._EMPTY:
-                        self.state = self._MIDDLE
-                        return
-
-        elif self.state is self._MIDDLE:
+        if self.state is self._MIDDLE:
+            # print("Testing end {} {}".format(self._board.get_board_size()**2 - self._board.get_total_pieces(), GAME_END))
             if self._board.get_board_size()**2 - self._board.get_total_pieces() <= GAME_END:
+                print("switching to end !")
                 self.state = self._END
                 return
 
     
     def getPlayerName(self):
-        return "Memory player"
+        return "Opening player"
 
 
     def nextMove(self):
@@ -237,25 +233,32 @@ class SequentialMemory(ImplementedPlayer):
             return (-1, -1)
 
 
-        self.updateGameState()
         if (self.state == self._BEGIN):
-            move = possibleMoves[randint(0, len(possibleMoves) - 1)]
-            self._board.push(move)
-            (c,x,y) = move
-            self.timeCount += getEllapsedTime(startTime)
+            move = getBookMove(self.bookStack)
 
-            return (x,y)
-
+            if move != -1:
+                self.bookStack.append(move)
+                (x, y) = move
+                self._board.push([self._opponent, x, y])
+                return (x,y)
+            else:
+                print("Stop using book")
+                self.state = self._MIDDLE
+        else:
+            self.updateGameState()
         self._board.setInitialDomination()
 
         MAX_TIME_MILLIS = (self.timeMax - self.timeCount)//((self._board.get_board_size()**2 - (n1 + n2 - 1))//2)
 
         #Saving time for end
         if self.state is self._MIDDLE:
+            # print("Middle malus -> ", MAX_TIME_MILLIS//3)
             MAX_TIME_MILLIS -= MAX_TIME_MILLIS//3
         elif self.state is self._END:
+            # print("End bonus -> ", (self.timeMax - self.timeCount)//5)
             MAX_TIME_MILLIS += (self.timeMax - self.timeCount - MAX_TIME_MILLIS)//5
 
+        # print("Time to spend -> ", MAX_TIME_MILLIS)
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
 
 
@@ -270,3 +273,8 @@ class SequentialMemory(ImplementedPlayer):
     def endGame(self, color):
         """ Nothing to do """
         pass
+
+    def playOpponentMove(self, x,y):
+        super().playOpponentMove(x, y)
+
+        self.bookStack.append((x, y))
