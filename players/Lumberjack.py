@@ -48,6 +48,7 @@ def insertSort(l, datas, value):
 
 
 def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
+    ''' Start the alpha beta prunning'''
     currentCredit = INITIAL_CREDIT
 
     moves = board.legal_moves()
@@ -55,7 +56,7 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     if len(moves) == 1:
         return (0, moves[0])
 
-    best_move = (MIN_VALUE - 1, [board._nextPlayer, -1, -1])
+    best_move = (MIN_VALUE - 1, moves[0])
     queue = list()
 
 
@@ -71,7 +72,6 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
         if currentValue >= best_move[0]:
             best_move = (currentValue, i)
 
-        # Maybe useless
         if getEllapsedTime(startTime) > MAX_TIME_MILLIS:
             return best_move
 
