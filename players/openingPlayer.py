@@ -104,6 +104,7 @@ def MaxValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
 
 
     if board.is_game_over():
+        print("Depth game over -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE
@@ -144,6 +145,8 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
         return value
 
     if board.is_game_over():
+        print("Depth game over -> ", depth)
+
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
@@ -247,7 +250,7 @@ class OpeningPlayer(ImplementedPlayer):
         elif self.state is self._END:
             MAX_TIME_MILLIS += (self.timeMax - self.timeCount - MAX_TIME_MILLIS)//5
 
-
+        print("Time to spend -> ", MAX_TIME_MILLIS)
         value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
 
 
