@@ -91,111 +91,31 @@ def heuristic_angle(board, player, cst=50):
 
     oponent = board._BLACK if player is board._WHITE else board._WHITE
 
-    if (boardArray[0][0] == player):
-        score += cst * 100
+    for i in board.get_corner():
+        if i is player:
+            score += cst * 100
+        elif i is oponent:
+            score -= cst * 100
 
-    elif (boardArray[0][0] == oponent):
-        score -= cst * 100
-
-    for i in range(1, boardSize - 1):
+    for i in range(0, boardSize):
         if boardArray[i][0] == player:
             score += cst * 5
+        elif boardArray[i][0] == oponent:
+            score -= cst * 5
 
-    for i in range(1, boardSize - 1):
         if boardArray[0][i] == player:
             score += cst * 5
-
-    for i in range(1, boardSize - 1):
-        if boardArray[i][0] == oponent:
+        elif boardArray[0][i] == oponent:
             score -= cst * 5
 
-    for i in range(1, boardSize - 1):
-        if boardArray[0][i] == oponent:
-            score -= cst * 5
-
-
-
-
-
-    if (boardArray[0][boardSize - 1] == player):
-        score += cst * 100
-
-    elif (boardArray[0][boardSize - 1] == oponent):
-        score -= cst * 100
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[0][i] == player:
-            score += cst * 5
-
-    for i in range(1, boardSize - 1):
-        if boardArray[i][boardSize - 1] == player:
-            score += cst * 5
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[0][i] == oponent:
-            score -= cst * 5
-
-
-    for i in range(1, boardSize - 1):
-        if boardArray[i][boardSize - 1] == oponent:
-            score -= cst * 5
-
-
-    
-
-
-
-    if (boardArray[boardSize - 1][boardSize - 1] == player):
-        score += cst * 100
-
-    elif (boardArray[boardSize - 1][boardSize - 1] == oponent):
-        score -= cst * 100
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[board - 1][i] == player:
-            score += cst * 5
-
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[i][board - 1] == player:
-            score += cst * 5
-
-
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[board - 1][i] == oponent:
-            score -= cst * 5
-
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[i][board - 1] == oponent:
-            score -= cst * 5
-
-        
-    
-    if (boardArray[boardSize - 1][0] == player):
-        score += cst * 100
-
-    elif (boardArray[boardSize - 1][0] == oponent):
-        score -= cst * 100
-    for i in range(boardSize - 2, -1):
-        if boardArray[i][0] == player:
-            score += cst * 5
-
-
-    for i in range(1, boardSize - 1):
         if boardArray[boardSize - 1][i] == player:
             score += cst * 5
-
-
-
-    for i in range(boardSize - 2, -1):
-        if boardArray[i][0] == oponent:
+        elif boardArray[boardSize - 1][i] == oponent:
             score -= cst * 5
 
-
-    for i in range(1, boardSize - 1):
-        if boardArray[boardSize - 1][i] == oponent:
+        if boardArray[i][boardSize - 1] == player:
+            score += cst * 5
+        elif boardArray[i][boardSize - 1] == oponent:
             score -= cst * 5
 
 
