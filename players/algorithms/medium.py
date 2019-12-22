@@ -58,6 +58,31 @@ def heuristic2(b,player):
             
     return score
 
+def heuristic_map(board, player):
+    map_value = [
+        2000, 800, 700, 600, 500, 500, 600, 700, 800, 2000,
+        800,  700, 300, 200, 200, 200, 200, 300, 700, 800,
+        700,  300, 200, 100, 100, 100, 100, 200, 300, 700,
+        600,  200, 100,  50,  50,  50,  50, 100, 200, 600,
+        500,  200, 100,  50,  25,  25,  50, 100, 200, 500,
+        500,  200, 100,  50,  25,  25,  50, 100, 200, 500,
+        600,  200, 100,  50,  50,  50,  50, 100, 200, 600,
+        700,  300, 200, 100, 100, 100, 100, 200, 300, 700,
+        800,  700, 300, 200, 200, 200, 200, 300, 700, 800,
+        2000, 800, 700, 600, 500, 500, 600, 700, 800, 2000
+    ]
+
+    boardArray = board.get_board()
+    boardSize = board.get_board_size()
+    count = 0
+
+    for x in range(boardSize):
+        for y in range(boardSize):
+            if boardArray[x][y] is player:
+                count += map_value[x][y]
+
+    return count
+
 def heuristic_angle(board, player, cst=50):
     boardSize = board.get_board_size()
     boardArray = board.get_board()
@@ -260,7 +285,6 @@ def negAlphaBetaDepth(board, alpha, beta, depth, heuristic, player):
 def getBookMove(playedMoves):
     current = book
 
-    print(playedMoves)
 
     while True:
         if len(playedMoves) == 0:
@@ -268,7 +292,6 @@ def getBookMove(playedMoves):
         nextMove = playedMoves.pop(0)
         nextStr = str(nextMove[0]) + str(nextMove[1])
 
-        print(nextStr)
         if nextStr in current.keys():
             current = current[nextStr]
         else:

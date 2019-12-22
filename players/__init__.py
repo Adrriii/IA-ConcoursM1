@@ -8,3 +8,4 @@ from .testMetaPlayer import MetaPlayer
 from .sequentialIterativeTimePlayer import SequentialIterative
 from .sequentialMemory import SequentialMemory
 from .openingPlayer import OpeningPlayer
+from .newHeuristic import MapPlayer

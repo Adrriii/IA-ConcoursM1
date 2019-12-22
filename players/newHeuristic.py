@@ -176,7 +176,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     return beta
 
 
-class OpeningPlayer(ImplementedPlayer):
+class MapPlayer(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -205,7 +205,7 @@ class OpeningPlayer(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Opening player"
+        return "MAP player"
 
 
     def nextMove(self):
@@ -248,7 +248,7 @@ class OpeningPlayer(ImplementedPlayer):
             MAX_TIME_MILLIS += (self.timeMax - self.timeCount - MAX_TIME_MILLIS)//5
 
 
-        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_angle, self._mycolor)
+        value = alphaBetaLauncher(self._board, startTime, MIN_VALUE, MAX_VALUE, heuristic_map, self._mycolor)
 
 
         self._board.push(value[1])
