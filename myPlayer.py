@@ -1,4 +1,4 @@
 from players import *
 
-class myPlayer(OpeningPlayer):
+class myPlayer(Lumberjack):
     pass

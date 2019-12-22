@@ -65,6 +65,9 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
         currentValue = MinValue(board, alpha, beta, heuristic, player, startTime, currentCredit, queue, i, 1)
         board.pop()
 
+        if currentValue == MAX_VALUE:
+            return (currentValue, i)
+
         if currentValue >= best_move[0]:
             best_move = (currentValue, i)
 
@@ -179,7 +182,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
     return beta
 
 
-class OpeningPlayer(ImplementedPlayer):
+class Lumberjack(ImplementedPlayer):
 
     def __init__(self):
         super().__init__()
@@ -208,7 +211,7 @@ class OpeningPlayer(ImplementedPlayer):
 
     
     def getPlayerName(self):
-        return "Opening player"
+        return "Lumberjack"
 
 
     def nextMove(self):
