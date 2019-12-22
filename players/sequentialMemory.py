@@ -34,7 +34,7 @@ BAD_MOVE_VALUE = 20
 MAX_VALUE = 999999999
 MIN_VALUE = -MAX_VALUE
 
-GAME_END = 25
+GAME_END = 30
 
 def insertSort(l, datas, value):
     insertIndex = len(l)
@@ -147,7 +147,7 @@ def MinValue(board, alpha, beta, heuristic, player, startTime, numberCredit, que
         return value
 
     if board.is_game_over():
-        # print("Depth GO -> ", depth)
+        print("Depth GO -> ", depth)
         (nbWhite, nbBlack) = board.get_nb_pieces()
         if player is board._BLACK:
             return MAX_VALUE if nbBlack > nbWhite else MIN_VALUE if nbWhite > nbBlack else 0
