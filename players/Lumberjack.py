@@ -59,6 +59,12 @@ def alphaBetaLauncher(board, startTime, alpha, beta, heuristic, player):
     best_move = (MIN_VALUE - 1, moves[0])
     queue = list()
 
+    # Take corner without losing time
+    for i in moves:
+        (_, x, y) = i
+
+        if (x, y) in board.get_corner_coord():
+            return (0, i)
 
     # Initial search, initialize queue
     for i in moves:
