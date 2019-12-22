@@ -155,6 +155,7 @@ class Display():
 
         self.refreshWindow()
 
+
     def refreshWindow(self):
         pygame.display.flip()
 

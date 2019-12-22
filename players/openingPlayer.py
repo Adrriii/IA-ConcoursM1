@@ -234,12 +234,12 @@ class OpeningPlayer(ImplementedPlayer):
 
 
         if (self.state == self._BEGIN):
-            move = getBookMove(self.bookStack)
+            move = getBookMove(self.bookStack.copy())
 
             if move != -1:
                 self.bookStack.append(move)
                 (x, y) = move
-                self._board.push([self._opponent, x, y])
+                self._board.push([self._mycolor, x, y])
                 return (x,y)
             else:
                 print("Stop using book")
